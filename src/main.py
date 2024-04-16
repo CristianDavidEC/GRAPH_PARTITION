@@ -54,8 +54,8 @@ def main(process_data):
 if __name__ == '__main__':
     data_to_process = {
         'file': 'data/muestra12.csv',
-        'future': '',
-        'current': '',
+        'future': 'ABC',
+        'current': 'AB',
         'state': '10'
     }
 
