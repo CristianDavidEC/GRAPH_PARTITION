@@ -1,62 +1,46 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from patterns import find_patterms
-from state_channel import get_matrix_state_channel_f
-from probability import get_probability_tables, calculate_probability
+from probability import get_probability_tables, calculate_joint_probability
+from utils import create_probability_distributions
 
 
 def main(process_data):
-    # Load data from csv file
-    data = pd.read_csv(process_data['file'], dtype=int)
-    # print('Data: \n', data)
+    probability_distributions = create_probability_distributions(process_data['file'])
+    # print('Probability distributions: \n', probability_distributions)
 
-    # Find patterns
-    patterns_found = find_patterms(data)
-    # print('\nPatterns found: \n', patterns_found)
+    probabilities_values = get_probability_tables(process_data, probability_distributions)
+    print('\n Probabilities values to chanel: \n')
+    print(probabilities_values)
 
-    # 1) State Channel F matrix
-    print('\n 1) State Channel F matrix')
-    matix_states_channel = get_matrix_state_channel_f(patterns_found, data)
-    matix_states_channel_df = pd.DataFrame(
-        matix_states_channel, index=data.columns)
-
-    matix_final_states = matix_states_channel_df.T
-    print(matix_final_states)
-    process_data['channels'] = ''.join(data.columns)
-    future = process_data['future']
-    current = process_data['current']
-    state = process_data['state']
-    all_channels = process_data['channels']
-
-    print('All channels: ', all_channels)
-    print('Future channels: ', future)
-    print('Current channels: ', current)
-    print('State current channels: ', state)
-
-    probabilities_values = get_probability_tables(process_data, matix_final_states)
-    # print('\n Probabilities values: \n')
-    # print(probabilities_values)
-
-    table_prob = calculate_probability(probabilities_values)
+    table_prob = calculate_joint_probability(probabilities_values)
     print('\n Probabilities values:')
     print(table_prob)
 
     # Graficar barras
+    graph_probability(table_prob, process_data)
+    
+
+
+def graph_probability(table_prob, process_data):
     table_prob.plot(x='state', y='probability', kind='bar')
-    plt.title(f'State - Probability {future} | {current} = {state}')
+    plt.title(f'State - Probability {process_data['future']} | {process_data['current']} = {process_data['state']}')
     plt.xlabel('State')
     plt.ylabel('Probability')
     plt.ylim(0, 1)
     plt.show()
 
-
 if __name__ == '__main__':
     data_to_process = {
-        'file': 'data/muestra12.csv',
+        'file': 'data/prob_table.json',
         'future': 'ABC',
-        'current': 'AB',
-        'state': '10'
+        'current': 'ABC',
+        'state': '111',
+        'channels': 'ABC'
     }
 
+    # print('Data to process: \n', data_to_process)
+
     main(data_to_process)
+
+

@@ -8,7 +8,7 @@ import pandas as pd
 # The probability of
 # P(ABC future | ABC current) = P(A future | ABC current) * P(B future | ABC current) * P(C future | ABC current)
 # * -> Tensor product
-def calculate_probability(probability_tables):
+def calculate_joint_probability(probability_tables):
     prob_array = [probability_tables[key] for key in probability_tables]
     result = prob_array[0]
     combinations = create_index_table(len(prob_array))
@@ -29,26 +29,27 @@ def create_index_table(num_elements):
     return combinations_string
 
 ## Get the marginalize table for the future channels, with your probabilities in a state channel
-def get_probability_tables(process_data, tabla):
+def get_probability_tables(process_data, probs_table):
     future_channels = process_data['future']
     current_channels = process_data['current']
     state_current_channels = process_data['state']
     all_channels = process_data['channels']
     probability_tables = {}
     
-    if future_channels == '':
-        marg_empty_future = get_marginalize_channel(tabla, current_channels, all_channels)
-        prom_rows = marg_empty_future.mean(axis=1)
-        probability_tables[''] = prom_rows.values
+    # if future_channels == '':
+    #     marg_empty_future = get_marginalize_channel(tabla, current_channels, all_channels)
+    #     prom_rows = marg_empty_future.mean(axis=1)
+    #     probability_tables[''] = prom_rows.values
+
+    #     print('Marginalize empty future: \n', marg_empty_future)
 
     for f_channel in future_channels:
-        sub_table = create_sub_table(tabla, f_channel)
         if current_channels == '':
-            probability_tables[f_channel] = get_prob_empty_current(sub_table)
+            probability_tables[f_channel] = get_prob_empty_current(probs_table[f_channel])
             continue
 
         table_prob = get_marginalize_channel(
-            sub_table, current_channels)
+            probs_table[f_channel], current_channels)
         
         row_probability = table_prob.loc[state_current_channels]
         #print('Row probability: ', row_probability)
