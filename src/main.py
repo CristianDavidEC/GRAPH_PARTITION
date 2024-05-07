@@ -21,7 +21,6 @@ def main(process_data):
     graph_probability(table_prob, process_data)
     
 
-
 def graph_probability(table_prob, process_data):
     table_prob.plot(x='state', y='probability', kind='bar')
     plt.title(f'State - Probability {process_data['future']} | {process_data['current']} = {process_data['state']}')

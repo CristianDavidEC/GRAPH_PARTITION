@@ -56,7 +56,7 @@ if __name__ == '__main__':
         'file': 'data/muestra12.csv',
         'future': 'ABC',
         'current': 'ABC',
-        'state': '010'
+        'state': '111'
     }
 
     old_probability_procces(data_to_process)
