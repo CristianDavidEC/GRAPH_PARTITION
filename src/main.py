@@ -2,17 +2,19 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
-from probability import get_probability_tables, calculate_joint_probability
+from probability import get_probability_tables, calculate_joint_probability, get_full_probability_matrix
 from utils import create_probability_distributions
 from graph.graph import create_graph
 
 
-
 def main(process_data):
     network_graph = create_graph(process_data['channels'])
-    print(network_graph.edges())
+    #print(network_graph.edges())
     probability_distributions = create_probability_distributions(process_data['file'])
-    # print('Probability distributions: \n', probability_distributions)
+    #print('Table Probability: \n' , probability_distributions)
+
+    full_prob_matriz = get_full_probability_matrix(probability_distributions, process_data['current'])
+    #print('\n Full probability matrix: \n', full_prob_matriz)
 
     probabilities_values = get_probability_tables(process_data, probability_distributions)
     print('\n Probabilities values to chanel: \n')
@@ -41,9 +43,9 @@ def graph_probability(table_prob, process_data):
 if __name__ == '__main__':
     data_to_process = {
         'file': 'data/prob_table.json',
-        'future': 'ABC',
-        'current': 'ABC',
-        'state': '111',
+        'future': 'AB',
+        'current': 'BC',
+        'state': '11',
         'channels': 'ABC'
     }
 

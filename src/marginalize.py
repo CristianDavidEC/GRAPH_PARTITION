@@ -24,7 +24,7 @@ def group_index(indexes, channel, channels='ABC'):
     element = channels.find(channel)
     if element != -1:
         return [modify_index(index, element) for index in indexes]
-    
+
     return indexes
     
 def modify_index(index, element):
