@@ -1,18 +1,21 @@
 import networkx as nx
 from itertools import product
 
-def create_graph(nodes):
-    new_edges = create_edges(nodes)
-    graph = nx.Graph()
-    graph.add_edges_from(new_edges)
+class Graph(nx.Graph):
+    def __init__(self):
+        super().__init__()
 
-    return graph
+    def create_graph(self, nodes):
+        new_edges = self.create_edges(nodes)
+        self.add_edges_from(new_edges)
 
-def create_edges(current_nodes):
-    current_nodes = list(current_nodes)
-    future_nodes = [f_node + "'" for f_node in current_nodes]
+        return self
 
-    edges = list(product(current_nodes, future_nodes))
+    def create_edges(self, current_nodes):
+        current_nodes = list(current_nodes)
+        future_nodes = [f_node + "'" for f_node in current_nodes]
 
-    return edges
-    
+        edges = list(product(current_nodes, future_nodes))
+
+        return edges
+        

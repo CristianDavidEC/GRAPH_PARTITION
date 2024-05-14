@@ -4,11 +4,12 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from probability import get_probability_tables, calculate_joint_probability, get_full_probability_matrix
 from utils import create_probability_distributions
-from graph.graph import create_graph
+from graph.graph import Graph
 
 
 def main(process_data):
-    network_graph = create_graph(process_data['channels'])
+    new_graph = Graph()
+    network_graph = new_graph.create_graph(process_data['channels'])
     #print(network_graph.edges())
     probability_distributions = create_probability_distributions(process_data['file'])
     #print('Table Probability: \n' , probability_distributions)
