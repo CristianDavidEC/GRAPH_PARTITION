@@ -20,7 +20,7 @@ def remove_edges(network: Graph, probabilities, proccess_data):
             pass
 
 
-def calcule_probabilities_connect_graph(graph: Graph, probabilities, proccess_data):
+def calcule_probabilities_connect_graph(graph: Graph, removed_edge, probabilities, proccess_data):
     prob_expression = graph.conver_edges_to_probability_expression()
 
     for future, current in prob_expression.items():
