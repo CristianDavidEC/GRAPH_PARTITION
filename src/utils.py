@@ -21,3 +21,9 @@ def create_probability_distributions(json_file):
 
     
     return probability_distributions
+
+def get_type_nodes(node1, node2):
+    if "'" in node1:
+        return node1, node2
+    
+    return node2, node1
