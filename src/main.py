@@ -2,8 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
-from probability import get_probability_tables, calculate_joint_probability, get_full_probability_matrix
-from utils import create_probability_distributions
+import probability.utils as utils
 from graph.graph import Graph
 from graph.remove_edges import remove_edges
 
@@ -13,13 +12,10 @@ def main(process_data):
     network_graph = new_graph.create_graph(process_data['channels'])    
     # print('Edges: \n', network_graph.edges())
 
-    probability_distributions = create_probability_distributions(process_data['file'])
+    probability_distributions = utils.create_probability_distributions(process_data['file'])
     # print('Table Probability: \n' , probability_distributions)
 
     remove_edges(network_graph, probability_distributions, process_data)
-
-
-    
     
     # full_prob_matriz = get_full_probability_matrix(probability_distributions, process_data['current'])
     # print('\n Full probability matrix: \n', full_prob_matriz)
@@ -53,7 +49,7 @@ if __name__ == '__main__':
         'file': 'data/prob_table.json',
         'future': 'AB',
         'current': 'BC',
-        'state': '11',
+        'state': '110',
         'channels': 'ABC'
     }
 

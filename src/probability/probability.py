@@ -1,8 +1,9 @@
-from utils import create_sub_table
-from marginalize import get_marginalize_channel
 import numpy as np
 import itertools
 import pandas as pd
+import probability.marginalize as mg
+import probability.utils as utils
+
 
 
 # The probability of
@@ -37,8 +38,8 @@ def get_probability_tables(process_data, probs_table):
     probability_tables = {}
     
     if future_channels == '':
-        full_matrix = get_full_probability_matrix(probs_table, current_channels)
-        maginalize_table = get_marginalize_channel(full_matrix, current_channels, all_channels)
+        full_matrix = get_original_probability(probs_table, current_channels)
+        maginalize_table = mg.get_marginalize_channel(full_matrix, current_channels, all_channels)
 
         row_sum = maginalize_table.loc[state_current_channels].sum()
         probability_tables[''] = np.array([row_sum, 1 - row_sum])
@@ -48,7 +49,7 @@ def get_probability_tables(process_data, probs_table):
             probability_tables[f_channel] = get_prob_empty_current(probs_table[f_channel])
             continue
 
-        table_prob = get_marginalize_channel(
+        table_prob = mg.get_marginalize_channel(
             probs_table[f_channel], current_channels, all_channels)
         
         row_probability = table_prob.loc[state_current_channels]
@@ -61,7 +62,7 @@ def get_prob_empty_current(table):
     return table.mean(axis=0).values
 
 
-def get_full_probability_matrix(probs_table, current_channels):
+def get_original_probability(probs_table, current_channels):
     index_tables = probs_table[current_channels[0]].index
     full_matriz = pd.DataFrame(columns=[index_tables])
 

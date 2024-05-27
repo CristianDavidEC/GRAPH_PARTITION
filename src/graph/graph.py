@@ -4,6 +4,10 @@ from itertools import product
 class Graph(nx.Graph):
     def __init__(self):
         super().__init__()
+        self.removed_edges = []
+        self.table_probability = None
+        self.loss_value = -1
+
 
     def create_graph(self, nodes: str):
         new_edges = self.create_edges(nodes)
@@ -38,17 +42,7 @@ class Graph(nx.Graph):
             exp_edges_prob[future] = exp_edges_prob[future] + current
         
         return exp_edges_prob
-
-    # def add_disconnected_nodes(self, exp_edges_prob):
-    #     for node in self.nodes():
-    #         if node not in exp_edges_prob:
-    #             if "'" in node:
-    #                 exp_edges_prob[node] = ""
-    #             else:
-    #                 exp_edges_prob[""] = ""
-    #                 exp_edges_prob[""] = exp_edges_prob[""] + node
-
-
+    
     def _get_type_nodes(self, node1, node2):
         if "'" in node1:
             return {

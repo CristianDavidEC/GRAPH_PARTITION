@@ -1,30 +1,42 @@
 import threading
 from graph.graph import Graph
 import networkx as nx
-from marginalize import get_marginalize_channel
-from utils import get_type_nodes
 import pandas as pd
+from probability.marginalize import get_marginalize_channel
+from probability.utils import get_type_nodes
+import probability.probability as prob
+import graph.emd_calculation as emd
 
 
 def remove_edges(network: Graph, probabilities, proccess_data):
+    original_prob = prob.get_original_probability(
+        probabilities, proccess_data['channels'])
+    
+    print(original_prob)    
+
     for removed_edge in network.edges():
         original_graph = network.copy()
         original_graph.remove_edge(*removed_edge)
 
         graph_processor = Graph()
         graph_processor.add_edges_to_graph(original_graph.edges())
+        graph_processor.removed_edges.append(removed_edge)
 
         if nx.is_connected(graph_processor):
-            calcule_probabilities_connect_graph(
-                graph_processor, [removed_edge], probabilities, proccess_data)
+            calcule_probability_dist(
+                graph_processor, probabilities, proccess_data)
 
+            emd_value = emd.calcule_emd(graph_processor, proccess_data['state'], original_prob)
+            graph_processor.loss_value = emd_value
+
+            print(vars(graph_processor))
+            
         else:
             pass
 
 
-def calcule_probabilities_connect_graph(graph: Graph, removed_edge: list, probabilities, proccess_data):
+def calcule_probability_dist(graph: Graph, probabilities, proccess_data):
     prob_expression = graph.conver_edges_to_probability_expression()
-    print('Probabilities expression: \n', prob_expression)
     tablet_marginalize = None
     tables_result = {}
 
@@ -32,13 +44,13 @@ def calcule_probabilities_connect_graph(graph: Graph, removed_edge: list, probab
         future_expression = future.replace("'", "")
         tablet_marginalize = get_marginalize_channel(
             probabilities[future_expression], current, proccess_data['channels'])
-        
+
         tables_result[future] = tablet_marginalize
-    
-    for edge in removed_edge:
+
+    for edge in graph.removed_edges:
         complete_table_prob(tables_result, edge, prob_expression)
 
-    print('Tables result: \n', tables_result)
+    graph.table_probability = tables_result
 
 
 def complete_table_prob(probabilities, node_delete, probability_exp):
@@ -49,24 +61,28 @@ def complete_table_prob(probabilities, node_delete, probability_exp):
 
     probability_table = probabilities[future]
 
-    probabilities[future] = modify_table_probability(probability_table, position_change)
+    probabilities[future] = modify_table_probability(
+        probability_table, position_change)
 
 
 def modify_table_probability(probability_table, position):
-    copy_probability_table = probability_table.copy()   
+    copy_probability_table = probability_table.copy()
 
-    probability_table.index = [modify_index(index, position, '0') for index in probability_table.index]
-    copy_probability_table.index = [modify_index(index, position, '1') for index in copy_probability_table.index]
+    probability_table.index = [modify_index(
+        index, position, '0') for index in probability_table.index]
+    copy_probability_table.index = [modify_index(
+        index, position, '1') for index in copy_probability_table.index]
 
-    new_probability_table = pd.concat([probability_table, copy_probability_table])
+    new_probability_table = pd.concat(
+        [probability_table, copy_probability_table])
 
     return new_probability_table
-
 
 
 def modify_index(index, position, value):
     index = index[:position] + value + index[position:]
     return index
+
 
 def calcule_position_modify_index(chanels, node):
     str_chanels = chanels + node
@@ -74,6 +90,3 @@ def calcule_position_modify_index(chanels, node):
     index_node = sorted_channels.index(node)
 
     return index_node
-    
-
-
