@@ -4,18 +4,19 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import probability.utils as utils
 from graph.graph import Graph
-from graph.remove_edges import remove_edges
+from graph.remove_edges import remove_edges, custom_remove_edge
 
 
 def main(process_data):
-    new_graph = Graph()
-    network_graph = new_graph.create_graph(process_data['channels'])    
-    # print('Edges: \n', network_graph.edges())
+    # new_graph = Graph()
+    # network_graph = new_graph.create_graph(process_data['channels'])    
+    # # print('Edges: \n', network_graph.edges())
 
-    probability_distributions = utils.create_probability_distributions(process_data['file'])
-    # print('Table Probability: \n' , probability_distributions)
+    # probability_distributions = utils.create_probability_distributions(process_data['file'])
+    # # print('Table Probability: \n' , probability_distributions)
 
-    remove_edges(network_graph, probability_distributions, process_data)
+    # #custom_remove_edge(network_graph, probability_distributions, process_data)
+    # remove_edges(network_graph, probability_distributions, process_data)
     
     # full_prob_matriz = get_full_probability_matrix(probability_distributions, process_data['current'])
     # print('\n Full probability matrix: \n', full_prob_matriz)
@@ -49,7 +50,7 @@ if __name__ == '__main__':
         'file': 'data/prob_table.json',
         'future': 'AB',
         'current': 'BC',
-        'state': '110',
+        'state': '000',
         'channels': 'ABC'
     }
 
