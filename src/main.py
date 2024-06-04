@@ -50,7 +50,7 @@ def graph_probability(table_prob, process_data):
 if __name__ == '__main__':
     data_to_process = {
         'file': 'data/prob_table.json',
-        'future': 'AB',
+        'future': 'ABC',
         'current': 'BC',
         'state': '11',
         'channels': 'ABC'

@@ -51,6 +51,8 @@ def get_probability_tables(process_data, probs_table):
         table_prob = get_marginalize_channel(
             probs_table[f_channel], current_channels, all_channels)
         
+        print('\nMarginalize table: \n')
+        print(table_prob)
         row_probability = table_prob.loc[state_current_channels]
         probability_tables[f_channel] = row_probability.values
 
