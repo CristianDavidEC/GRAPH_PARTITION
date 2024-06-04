@@ -38,7 +38,7 @@ def get_probability_tables(process_data, probs_table):
     probability_tables = {}
     
     if future_channels == '':
-        full_matrix = get_original_probability(probs_table, current_channels)
+        full_matrix = get_original_probability(probs_table, current_channels, future_channels, all_channels)
         maginalize_table = mg.get_marginalize_channel(full_matrix, current_channels, all_channels)
 
         row_sum = maginalize_table.loc[state_current_channels].sum()
@@ -62,18 +62,29 @@ def get_prob_empty_current(table):
     return table.mean(axis=0).values
 
 
-def get_original_probability(probs_table, current_channels):
-    index_tables = probs_table[current_channels[0]].index
-    full_matriz = pd.DataFrame(columns=[index_tables])
+def get_original_probability(probs_table, current_channels, future_channels, all_channels):
+    marg_table = {}
+
+    for key, table in probs_table.items():
+        if key in future_channels:
+            new_table = mg.get_marginalize_channel(table, current_channels, all_channels)
+            marg_table[key] = new_table
+
+    index_tables = marg_table[current_channels[0]].index
+    n_cols = 2 ** len(future_channels)
+    full_matriz = pd.DataFrame(columns=[f'{key}' for key in range(n_cols)])
 
     for index in index_tables:
         prob_state = {}
-        for key, table in probs_table.items():
+        for key, table in marg_table.items():
             value = table.loc[index].values
             prob_state[key] = value
         
         joint_prob = calculate_joint_probability(prob_state)
-        full_matriz.loc[index] = joint_prob['probability'].tolist()
+        columns = joint_prob['state'].values
+        full_matriz.columns = columns
+        full_matriz.loc[index] = joint_prob['probability'].values
+
 
     return full_matriz
         

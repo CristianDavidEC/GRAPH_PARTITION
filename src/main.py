@@ -5,7 +5,7 @@ import networkx as nx
 import probability.utils as utils
 import partition.partition as partition
 from graph.graph import Graph
-from graph.remove_edges import remove_edges, custom_remove_edge
+from graph.remove_edges import remove_edges
 
 
 def main(process_data):
@@ -52,8 +52,8 @@ if __name__ == '__main__':
     data_to_process = {
         'file': 'data/prob_table.json',
         'future': 'ABC',
-        'current': 'ABC',
-        'state': '000',
+        'current': 'AB',
+        'state': '00',
         'channels': 'ABC',
         'method': 'partition' # partition | delete_edges | clear_zeros | heuristicas
     }
