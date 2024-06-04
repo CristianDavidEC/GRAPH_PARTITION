@@ -3,11 +3,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
 import probability.utils as utils
+import partition.partition as partition
 from graph.graph import Graph
 from graph.remove_edges import remove_edges, custom_remove_edge
 
 
 def main(process_data):
+    partition.calculate_partition(process_data)
+
+
+    pass
     # new_graph = Graph()
     # network_graph = new_graph.create_graph(process_data['channels'])    
     # # print('Edges: \n', network_graph.edges())
@@ -48,10 +53,11 @@ def graph_probability(table_prob, process_data):
 if __name__ == '__main__':
     data_to_process = {
         'file': 'data/prob_table.json',
-        'future': 'AB',
-        'current': 'BC',
+        'future': 'ABC',
+        'current': 'ABC',
         'state': '000',
-        'channels': 'ABC'
+        'channels': 'ABC',
+        'method': 'partition' # partition | delete_edges | clear_zeros | heuristicas
     }
 
     # print('Data to process: \n', data_to_process)
