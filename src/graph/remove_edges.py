@@ -10,7 +10,7 @@ import graph.emd_calculation as emd
 
 def remove_edges(network: Graph, probabilities, proccess_data):
     original_prob = prob.get_original_probability(
-        probabilities, proccess_data['channels'])
+        probabilities, proccess_data['current'])
 
     print(original_prob)
 

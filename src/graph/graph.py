@@ -9,15 +9,15 @@ class Graph(nx.Graph):
         self.loss_value = -1
 
 
-    def create_graph(self, nodes: str):
-        new_edges = self.create_edges(nodes)
+    def create_graph(self, current_nodes: str, future_nodes: str):
+        new_edges = self.create_edges(current_nodes, future_nodes)
         self.add_edges_from(new_edges)
 
         return self
 
-    def create_edges(self, current_nodes):
+    def create_edges(self, current_nodes, future_nodes):
         current_nodes = list(current_nodes)
-        future_nodes = [f_node + "'" for f_node in current_nodes]
+        future_nodes = [f_node + "'" for f_node in future_nodes]
 
         edges = list(product(current_nodes, future_nodes))
 

@@ -15,10 +15,6 @@ def calcule_emd(graph: Graph, state, original_probability):
     list_modofy_prob = modofy_prob['probability'].values
     list_original_prob = original_probability.loc[state].to_numpy()
 
-    # print(f'List Modify Prob \n{list_modofy_prob}')
-    # print(f'List Original Prob \n{list_original_prob}')
-    # print(f'Haming Matrix \n{haming_matrix}')
-
     list_modofy_prob = np.ascontiguousarray(list_modofy_prob, dtype=np.double)
     list_original_prob = np.ascontiguousarray(
         list_original_prob, dtype=np.double)
@@ -40,6 +36,7 @@ def get_probability_in_state(graph: Graph, state):
     return probabiliry_result
 
 
+### Generate matrix hamming to 
 def hamming_distance_matrix(states):
     state = list(map(lambda x: list(map(int, x)), states))
     haming_matrix = cdist(state, state, 'hamming') * len(state[0])
