@@ -10,8 +10,6 @@ def calcule_emd(graph: Graph, state, original_probability):
     modofy_prob = get_probability_in_state(graph, state)
     haming_matrix = hamming_distance_matrix(modofy_prob['state'].values)
 
-    print('\nEMD Calculation')
-
     list_modofy_prob = modofy_prob['probability'].values
     list_original_prob = original_probability.loc[state].to_numpy()
 
