@@ -16,7 +16,7 @@ def main(process_data):
     # print('Edges: \n', network_graph.edges())
 
     probability_distributions = utils.create_probability_distributions(process_data['file'])
-    # print('Table Probability: \n' , probability_distributions)
+    print('Table Probability: \n' , probability_distributions)
 
     custom_remove_edge(network_graph, probability_distributions, process_data)
     #remove_edges(network_graph, probability_distributions, process_data)
@@ -50,7 +50,7 @@ def graph_probability(table_prob, process_data):
 
 if __name__ == '__main__':
     data_to_process = {
-        'file': 'data/prob_table.json',
+        'file': 'data/tablex5.json',
         'future': 'ABC',
         'current': 'ABC',
         'state': '001',

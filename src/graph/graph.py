@@ -4,7 +4,7 @@ from itertools import product
 class Graph(nx.Graph):
     def __init__(self):
         super().__init__()
-        self.removed_edges = []
+        self.removed_edges = [] 
         self.table_probability = None
         self.loss_value = -1
 

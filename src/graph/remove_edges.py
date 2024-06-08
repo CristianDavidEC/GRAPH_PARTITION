@@ -14,24 +14,24 @@ def remove_edges(network: Graph, probabilities, proccess_data):
 
     for removed_edge in network.edges():
         graph_processor = create_new_graph(network, removed_edge)
-        if nx.is_connected(graph_processor):
-            calcule_probability_dist(
-                graph_processor, probabilities, proccess_data)
+        calcule_probability_dist(
+            graph_processor, probabilities, proccess_data)
 
-            emd_value = emd.calcule_emd(
-                graph_processor, proccess_data['state'], original_prob)
-            graph_processor.loss_value = emd_value
+        emd_value = emd.calcule_emd(
+            graph_processor, proccess_data['state'], original_prob)
+        graph_processor.loss_value = emd_value
 
-            print(f'''Information Graph
-                    EDGES:
-                    {graph_processor.edges}
-                    REMOVED EDGE:
-                    {graph_processor.removed_edges}
-                    VALE LOSS  
-                    {graph_processor.loss_value}
-                  ''')
-        else:
-            pass
+        print(f'''Information Graph
+                EDGES:
+                {graph_processor.edges}
+                REMOVED EDGE:
+                {graph_processor.removed_edges}
+                VALE LOSS  
+                {graph_processor.loss_value}
+                ''')
+        if not nx.is_connected(graph_processor):
+            print(f'Grafo Desconexo\n {vars(graph_processor)}')
+
 
 
 def custom_remove_edge(network: Graph, probabilities, proccess_data):
