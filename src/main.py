@@ -5,7 +5,7 @@ import networkx as nx
 import probability.utils as utils
 import partition.partition as partition
 from graph.graph import Graph
-from graph.remove_edges import remove_edges, custom_remove_edge
+from graph.remove_edges import remove_edges
 
 
 def main(process_data):
@@ -15,11 +15,14 @@ def main(process_data):
     network_graph = new_graph.create_graph(process_data['current'], process_data['future'])
     # print('Edges: \n', network_graph.edges())
 
-    probability_distributions = utils.create_probability_distributions(process_data['file'])
-    print('Table Probability: \n' , probability_distributions)
+    nx.draw(network_graph, with_labels=True)
+    plt.show()
 
-    custom_remove_edge(network_graph, probability_distributions, process_data)
-    #remove_edges(network_graph, probability_distributions, process_data)
+    probability_distributions = utils.create_probability_distributions(process_data['file'])
+    #print('Table Probability: \n' , probability_distributions)
+
+    #custom_remove_edge(network_graph, probability_distributions, process_data)
+    remove_edges(network_graph, probability_distributions, process_data)
     
     # full_prob_matriz = get_full_probability_matrix(probability_distributions, process_data['current'])
     # print('\n Full probability matrix: \n', full_prob_matriz)
@@ -52,10 +55,10 @@ if __name__ == '__main__':
     data_to_process = {
         'file': 'data/tablex5.json',
         'future': 'ABC',
-        'current': 'ABC',
-        'state': '001',
-        'channels': 'ABC',
-        'method': 'partition' # partition | delete_edges | clear_zeros | heuristicas
+        'current': 'AC',
+        'state': '10',
+        'channels': 'ABCDE',
+        #'method': 'partition' # partition | delete_edges | clear_zeros | heuristicas
     }
 
     # print('Data to process: \n', data_to_process)

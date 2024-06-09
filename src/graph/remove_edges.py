@@ -6,14 +6,17 @@ from probability.marginalize import get_marginalize_channel
 from probability.utils import get_type_nodes
 import probability.probability as prob
 import graph.emd_calculation as emd
+import matplotlib.pyplot as plt
 
 
 def remove_edges(network: Graph, probabilities, proccess_data):
     original_prob = prob.get_original_probability(
         probabilities, proccess_data['current'], proccess_data['future'], proccess_data['channels'])
 
-    for removed_edge in network.edges():
-        graph_processor = create_new_graph(network, removed_edge)
+    original_graph = network.copy()
+
+    for removed_edge in original_graph.edges():
+        graph_processor = create_new_graph(original_graph, removed_edge)
         calcule_probability_dist(
             graph_processor, probabilities, proccess_data)
 
@@ -21,54 +24,70 @@ def remove_edges(network: Graph, probabilities, proccess_data):
             graph_processor, proccess_data['state'], original_prob)
         graph_processor.loss_value = emd_value
 
-        print(f'''Information Graph
-                EDGES:
-                {graph_processor.edges}
-                REMOVED EDGE:
-                {graph_processor.removed_edges}
-                VALE LOSS  
-                {graph_processor.loss_value}
-                ''')
-        if not nx.is_connected(graph_processor):
-            print(f'Grafo Desconexo\n {vars(graph_processor)}')
+        # print(f'''Information Graph
+        #         EDGES:
+        #         {graph_processor.edges}
+        #         REMOVED EDGE:
+        #         {graph_processor.removed_edges}
+        #         VALE LOSS: {graph_processor.loss_value}
+        #         ''')
+        original_graph[removed_edge[0]][removed_edge[1]]['weight'] = emd_value
+
+        if graph_processor.loss_value == 0:
+            network.remove_edge(*removed_edge)
+            network.removed_edges.append(removed_edge)
+
+        if not nx.is_connected(network):
+            network.loss_value = emd_value
+            print(f'Grafo Conexo\n {vars(original_graph)}')
+            print(f'Grafo no Conexo\n {vars(network)}')
+
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
+
+            nx.draw(original_graph, with_labels=True, ax=ax1)
+            nx.draw(network, with_labels=True, ax=ax2)
+
+            plt.show()
+
+            break
 
 
+# def custom_remove_edge(network: Graph, probabilities, proccess_data):
+#     original_prob = prob.get_original_probability(
+#         probabilities, proccess_data['current'], proccess_data['future'], proccess_data['channels'])
 
-def custom_remove_edge(network: Graph, probabilities, proccess_data):
-    original_prob = prob.get_original_probability(
-        probabilities, proccess_data['current'], proccess_data['future'], proccess_data['channels'])
+#     #print(original_prob)
+#     removes_edges = [("A", "A'"), ("C", "A'")]
 
-    #print(original_prob)
-    removes_edges = [("A", "A'"), ("C", "A'")]
+#     for removed_edge in removes_edges:
+#         network.remove_edge(*removed_edge)
 
-    for removed_edge in removes_edges:
-        network.remove_edge(*removed_edge)
+#     graph_processor = Graph()
+#     graph_processor.add_edges_to_graph(network.edges())
+#     graph_processor.removed_edges = removes_edges
 
-    graph_processor = Graph()
-    graph_processor.add_edges_to_graph(network.edges())
-    graph_processor.removed_edges = removes_edges
+#     if nx.is_connected(graph_processor):
+#         print(f'Grafo Conexo\n {vars(graph_processor)}')
+#         print(f'Edges\n {graph_processor.edges}')
+#         calcule_probability_dist(
+#             graph_processor, probabilities, proccess_data)
 
-    if nx.is_connected(graph_processor):
-        print(f'Grafo Conexo\n {vars(graph_processor)}')
-        print(f'Edges\n {graph_processor.edges}')
-        calcule_probability_dist(
-            graph_processor, probabilities, proccess_data)
+#         emd_value = emd.calcule_emd(
+#             graph_processor, proccess_data['state'], original_prob)
+#         graph_processor.loss_value = emd_value
 
-        emd_value = emd.calcule_emd(
-            graph_processor, proccess_data['state'], original_prob)
-        graph_processor.loss_value = emd_value
+#         print(f'''Information Graph
+#     EDGES:
+#     {graph_processor.edges}
+#     REMOVED EDGE:
+#     {graph_processor.removed_edges}
+#     VALE LOSS  
+#     {graph_processor.loss_value}
+#                   ''')
+#     else:
+#         print('Grafo No Conexo')
+#         pass
 
-        print(f'''Information Graph
-    EDGES:
-    {graph_processor.edges}
-    REMOVED EDGE:
-    {graph_processor.removed_edges}
-    VALE LOSS  
-    {graph_processor.loss_value}
-                  ''')
-    else:
-        print('Grafo No Conexo')
-        pass
 
 ### Crea un nuevo grafo con el edge removido
 def create_new_graph(network: Graph, removed_edge):
