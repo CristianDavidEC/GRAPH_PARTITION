@@ -1,4 +1,3 @@
-import threading
 from graph.graph import Graph
 import networkx as nx
 import pandas as pd
@@ -49,14 +48,15 @@ def remove_edges(network: Graph, probabilities, proccess_data):
 
             plt.show()
 
-            return
-    
-    print(f'Grafo con eliminaciones: \n {vars(network)}')
+            break
+
     print('Grafo completo')
     print(f'Edges\n {original_graph.edges(data=True)}')
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
+
     nx.draw(original_graph, with_labels=True, ax=ax1)
     nx.draw(network, with_labels=True, ax=ax2)
+
     plt.show()
 
     pos = nx.spring_layout(original_graph)
@@ -65,6 +65,7 @@ def remove_edges(network: Graph, probabilities, proccess_data):
     nx.draw_networkx_edge_labels(original_graph, pos, edge_labels=labels)
     plt.show()
     
+
 
 
 # def custom_remove_edge(network: Graph, probabilities, proccess_data):
@@ -120,10 +121,20 @@ def create_new_graph(network: Graph, removed_edge):
 ### @ param probabilities: diccionario con las tablas de probabilidad original
 def calcule_probability_dist(graph: Graph, probabilities, proccess_data):
     prob_expression = graph.conver_edges_to_probability_expression()
+
     tablet_marginalize = None
     tables_result = {}
     
     for future, current in prob_expression.items():
+        # if current == '':
+        #     future_expression = future.replace("'", "")
+        #     tables_result[future_expression] = prob.get_prob_empty_current(probabilities[future_expression])
+        #     continue
+
+        # if future == '':
+        #     tables_result[current] = prob.get_prob_empty_future(probabilities[current])
+        #     continue
+
         future_expression = future.replace("'", "")
         tablet_marginalize = get_marginalize_channel(
             probabilities[future_expression], current, proccess_data['channels'])
@@ -145,6 +156,9 @@ def calcule_probability_dist(graph: Graph, probabilities, proccess_data):
 def complete_table_prob(probabilities, node_delete, probability_exp):
     node1, node2 = node_delete
     future, current = get_type_nodes(node1, node2)
+    
+    if future in probability_exp:
+        return
 
     channels_current = probability_exp[future]
     position_change = calcule_position_modify_index(channels_current, current)

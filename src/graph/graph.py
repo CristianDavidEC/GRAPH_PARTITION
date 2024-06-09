@@ -10,8 +10,11 @@ class Graph(nx.Graph):
 
 
     def create_graph(self, current_nodes: str, future_nodes: str):
+        self.create_nodes(current_nodes, future_nodes)
         new_edges = self.create_edges(current_nodes, future_nodes)
         self.add_edges_from(new_edges)
+
+        # self.create_nodes(current_nodes, future_nodes)
 
         return self
 
@@ -22,6 +25,14 @@ class Graph(nx.Graph):
         edges = list(product(current_nodes, future_nodes))
 
         return edges
+
+    def create_nodes(self, current_nodes: str, future_nodes: str):
+        futures = [f_node + "'" for f_node in future_nodes]
+        currents = list(current_nodes)
+
+        self.add_nodes_from(currents)
+        self.add_nodes_from(futures)
+
     
     def add_edges_to_graph(self, edges: list):
         self.add_edges_from(edges)
@@ -40,7 +51,7 @@ class Graph(nx.Graph):
                 exp_edges_prob[future] = ''
 
             exp_edges_prob[future] = exp_edges_prob[future] + current
-        
+
         return exp_edges_prob
     
     def _get_type_nodes(self, node1, node2):

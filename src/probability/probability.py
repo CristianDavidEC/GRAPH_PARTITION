@@ -70,7 +70,7 @@ def get_original_probability(probs_table, current_channels, future_channels, all
             new_table = mg.get_marginalize_channel(table, current_channels, all_channels)
             marg_table[key] = new_table
 
-    index_tables = marg_table[current_channels[0]].index
+    index_tables = marg_table[future_channels[0]].index
     n_cols = 2 ** len(future_channels)
     full_matriz = pd.DataFrame(columns=[f'{key}' for key in range(n_cols)])
 

@@ -14,7 +14,7 @@ def main(process_data):
     new_graph = Graph()
     network_graph = new_graph.create_graph(process_data['current'], process_data['future'])
     # print('Edges: \n', network_graph.edges())
-
+    
     nx.draw(network_graph, with_labels=True)
     plt.show()
 
@@ -55,8 +55,8 @@ if __name__ == '__main__':
     data_to_process = {
         'file': 'data/tablex5.json',
         'future': 'ABC',
-        'current': 'AC',
-        'state': '10',
+        'current': 'ABC',
+        'state': '100',
         'channels': 'ABCDE',
         #'method': 'partition' # partition | delete_edges | clear_zeros | heuristicas
     }

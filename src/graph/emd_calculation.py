@@ -26,6 +26,9 @@ def get_probability_in_state(graph: Graph, state):
     table_probability = graph.table_probability
     prob_state = {}
     for future, table in table_probability.items():
+        # if isinstance(table, np.ndarray):
+        #     prob_state[future] = table
+        #     continue
         if state in table.index:
             prob_state[future] = table.loc[state].values
 
@@ -34,7 +37,7 @@ def get_probability_in_state(graph: Graph, state):
     return probabiliry_result
 
 
-### Generate matrix hamming to 
+### Generate matrix hamming to
 def hamming_distance_matrix(states):
     state = list(map(lambda x: list(map(int, x)), states))
     haming_matrix = cdist(state, state, 'hamming') * len(state[0])
