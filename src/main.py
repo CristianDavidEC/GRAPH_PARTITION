@@ -54,9 +54,9 @@ def graph_probability(table_prob, process_data):
 if __name__ == '__main__':
     data_to_process = {
         'file': 'data/tablex5.json',
-        'future': 'ABC',
-        'current': 'ABC',
-        'state': '100',
+        'future': 'BC',
+        'current': 'C',
+        'state': '0',
         'channels': 'ABCDE',
         #'method': 'partition' # partition | delete_edges | clear_zeros | heuristicas
     }

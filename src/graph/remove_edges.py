@@ -19,6 +19,9 @@ def remove_edges(network: Graph, probabilities, proccess_data):
         graph_processor = create_new_graph(original_graph, removed_edge)
         calcule_probability_dist(
             graph_processor, probabilities, proccess_data)
+        
+        # print('Nodes:', graph_processor.nodes())
+        # print('Edges:', graph_processor.edges())    
 
         emd_value = emd.calcule_emd(
             graph_processor, proccess_data['state'], original_prob)
@@ -130,6 +133,13 @@ def calcule_probability_dist(graph: Graph, probabilities, proccess_data):
 
         tables_result[future] = tablet_marginalize
 
+    
+    # print(len(proccess_data['current']))
+    # if len(proccess_data['current']) == 1:
+    #     graph.table_probability = tables_result
+
+    #     return
+
     for edge in graph.removed_edges:
         complete_table_prob(tables_result, edge, prob_expression)
 
@@ -142,9 +152,15 @@ def calcule_probability_dist(graph: Graph, probabilities, proccess_data):
 ### @ param probabilities: diccionario con las tablas de probabilidad
 ### @ param node_delete: tupla con los nodos a eliminar
 ### @ param probability_exp: diccionario con las expresiones de probabilidad, del grafo sin los nodos eliminados
-def complete_table_prob(probabilities, node_delete, probability_exp):
+def complete_table_prob(probabilities, node_delete, probability_exp, size_current=0):
+    print(probabilities)
+    print(probability_exp)
+    print(node_delete)
     node1, node2 = node_delete
     future, current = get_type_nodes(node1, node2)
+
+    if size_current == 0:
+        return
 
     channels_current = probability_exp[future]
     position_change = calcule_position_modify_index(channels_current, current)

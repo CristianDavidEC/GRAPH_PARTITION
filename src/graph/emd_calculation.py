@@ -16,6 +16,10 @@ def calcule_emd(graph: Graph, state, original_probability):
     list_modofy_prob = np.ascontiguousarray(list_modofy_prob, dtype=np.double)
     list_original_prob = np.ascontiguousarray(
         list_original_prob, dtype=np.double)
+    
+    print('modify prob:', list_modofy_prob)
+    print('original prob:', list_original_prob)
+    print('Haming matrix:', haming_matrix)
 
     emd_value = emd(list_modofy_prob, list_original_prob, haming_matrix)
 
