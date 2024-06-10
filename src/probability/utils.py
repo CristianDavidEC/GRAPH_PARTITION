@@ -1,5 +1,6 @@
 import pandas as pd
 import json
+import matplotlib.pyplot as plt
 
 def create_sub_table(data_frame, colum_extract):
     if colum_extract == '':
@@ -27,3 +28,12 @@ def get_type_nodes(node1, node2):
         return node1, node2
     
     return node2, node1
+
+
+def graph_probability(table_prob, process_data):
+    table_prob.plot(x='state', y='probability', kind='bar')
+    plt.title(f'State - Probability {process_data['future']} | {process_data['current']} = {process_data['state']}')
+    plt.xlabel('State')
+    plt.ylabel('Probability')
+    plt.ylim(0, 1)
+    plt.show()
