@@ -6,8 +6,6 @@ import probability.utils as utils
 def calculate_partition(process_data):
     combinations_current = find_combinations(process_data['current'])
     combinations_future = find_combinations(process_data['future'])
-    print(combinations_current)
-    print(combinations_future)
 
     dic_combinations = create_table_combination(
         combinations_current, combinations_future)
@@ -23,23 +21,21 @@ def calcule_probability_partition(currents, futures, dic_combinations, process_d
     channels_current = process_data['current']
     channels_future = process_data['future']
 
-    # add_special_case(channels_current, channels_future, table_comb)
-
     for current in currents:
         for future in futures:
             part_left, part_right = get_partition_exp(
                 current, future, channels_current, channels_future)
 
             if is_valid_partition(part_left, part_right):
-
-                print(f'{part_left[0]}| {part_left[1]} x {
-                    part_right[0]} | {part_right[1]}')
+                # print(f'{part_left[0]}| {part_left[1]} x {
+                #     part_right[0]} | {part_right[1]}')
 
                 partition_left_tab = calculate_parts(
                     part_left, dic_combinations, probabilities, process_data)
                 partition_right_tab = calculate_parts(
                     part_right, dic_combinations, probabilities, process_data)
             else:
+                pass
                 # print('Invalid partition')
                 # print(part_left)
                 # print(part_right)
@@ -50,24 +46,45 @@ def calcule_probability_partition(currents, futures, dic_combinations, process_d
 
         if all(dic_combinations.values()):
             break
-
+        
+    
     print(dic_combinations)
-
+    
 
 def calculate_parts(partition, dic_combinations, probabilities, process_data):
     furure, current = partition
-
-    process_data['future'] = furure
-    process_data['current'] = current
+    table_prob_partition = None 
+    key_comb = current+'|'+furure 
 
     if furure == '' and current == '':
-        dic_combinations[''] = current+'|'+furure
+        dic_combinations[key_comb] = 0
         return
 
-    table_prob_partition = prob.get_probability_tables_partition(
-        process_data, probabilities, dic_combinations)
+    state = get_value_state(
+        current, process_data['current'], process_data['state'])
+    
+    data_to_process = {
+        'future': furure,
+        'current': current,
+        'state': state,
+        'channels': process_data['channels'],
+    }
 
-    pass
+    if dic_combinations[key_comb] is not None:
+        table_prob_partition = dic_combinations[key_comb]
+
+    table_prob_partition = prob.get_probability_tables_partition(
+        data_to_process, probabilities, dic_combinations)
+
+
+def get_value_state(current, all_current, state):
+    val_state = ''
+    for l in current:
+        position = all_current.find(l)
+        if position != -1:
+            val_state += state[position]
+
+    return val_state
 
 
 def is_valid_partition(part_left, part_right):
