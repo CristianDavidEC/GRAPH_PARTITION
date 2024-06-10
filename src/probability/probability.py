@@ -87,6 +87,48 @@ def get_original_probability(probs_table, current_channels, future_channels, all
 
 
     return full_matriz
+
+
+def get_probability_tables_partition(process_data, probs_table, table_comb):
+    future_channels = process_data['future']
+    current_channels = process_data['current']
+    state_current_channels = process_data['state']
+    all_channels = process_data['channels']
+    probability_tables = {}
+
+    key_comb = future_channels + '|' + current_channels
+
+    if table_comb[key_comb] is not None:
+        return table_comb[key_comb]
+
+    if future_channels == '':
+        full_matrix = get_original_probability(probs_table, current_channels, future_channels, all_channels)
+        maginalize_table = mg.get_marginalize_channel(full_matrix, current_channels, all_channels)
+
+        row_sum = maginalize_table.loc[state_current_channels].sum()
+        probability_tables[''] = np.array([row_sum, 1 - row_sum])
+
+        table_comb[key_comb] = probability_tables
+
+    for f_channel in future_channels:
+        key_comb = f_channel + '|' + current_channels
+        if table_comb[key_comb] is not None:
+            probability_tables[f_channel] = table_comb[key_comb]
+            continue
+
+        if current_channels == '':
+            probability_tables[f_channel] = get_prob_empty_current(probs_table[f_channel])
+            table_comb[key_comb] = probability_tables
+            continue
+
+        table_prob = mg.get_marginalize_channel(
+            probs_table[f_channel], current_channels, all_channels)
+        
+        row_probability = table_prob.loc[state_current_channels]
+        probability_tables[f_channel] = row_probability.values
+        table_comb[key_comb] = probability_tables
+
+    return probability_tables
         
     
     

@@ -1,50 +1,88 @@
 import pandas as pd
 import probability.probability as prob
+import probability.utils as utils
 
 
 def calculate_partition(process_data):
     combinations_current = find_combinations(process_data['current'])
     combinations_future = find_combinations(process_data['future'])
+    print(combinations_current)
+    print(combinations_future)
 
-    table_comb = pd.DataFrame(
-        index=combinations_current, columns=combinations_future)
-    table_comb.fillna(-1)
+    dic_combinations = create_table_combination(
+        combinations_current, combinations_future)
 
     calcule_probability_partition(
-        combinations_current, combinations_future, table_comb, process_data)
+        combinations_current, combinations_future, dic_combinations, process_data)
 
 
-def calcule_probability_partition(currents, futures, table_comb, process_data):
-    probabilities = prob.create_probability_distributions(process_data['file'])
+def calcule_probability_partition(currents, futures, dic_combinations, process_data):
+    probabilities = utils.create_probability_distributions(
+        process_data['file'])
 
     channels_current = process_data['current']
     channels_future = process_data['future']
 
-    add_special_case(channels_current, channels_future, table_comb)
-
-    print(table_comb)
+    # add_special_case(channels_current, channels_future, table_comb)
 
     for current in currents:
         for future in futures:
             part_left, part_right = get_partition_exp(
                 current, future, channels_current, channels_future)
 
-            print(f'{part_left[0]}| {part_left[1]} x {
-                  part_right[0]} | {part_right[1]}')
+            if is_valid_partition(part_left, part_right):
 
-        if (table_comb != -1).all().all():
+                print(f'{part_left[0]}| {part_left[1]} x {
+                    part_right[0]} | {part_right[1]}')
+
+                partition_left_tab = calculate_parts(
+                    part_left, dic_combinations, probabilities, process_data)
+                partition_right_tab = calculate_parts(
+                    part_right, dic_combinations, probabilities, process_data)
+            else:
+                # print('Invalid partition')
+                # print(part_left)
+                # print(part_right)
+                calculate_parts(part_left, dic_combinations,
+                                probabilities, process_data)
+                calculate_parts(part_right, dic_combinations,
+                                probabilities, process_data)
+
+        if all(dic_combinations.values()):
             break
+
+    print(dic_combinations)
+
+
+def calculate_parts(partition, dic_combinations, probabilities, process_data):
+    furure, current = partition
+
+    process_data['future'] = furure
+    process_data['current'] = current
+
+    if furure == '' and current == '':
+        dic_combinations[''] = current+'|'+furure
+        return
+
+    table_prob_partition = prob.get_probability_tables_partition(
+        process_data, probabilities, dic_combinations)
+
     pass
 
 
-# Special case to keys "" | "" x "ABC" | "ABC"
-def add_special_case(channels_current, channels_future, table_comb):
-    table_comb.loc[channels_current, channels_future] = 0
-    table_comb.loc["", ""] = 0
+def is_valid_partition(part_left, part_right):
+    if part_left[0] == "" and part_left[1] == "":
+        return False
+    if part_right[0] == "" and part_right[1] == "":
+        return False
+
+    return True
 
 
-def is_prob_table_complete(table):
-    return table.isnull().all().all()
+# # Special case to keys "" | "" x "ABC" | "ABC"
+# def add_special_case(channels_current, channels_future, table_comb):
+#     table_comb.loc[channels_current, channels_future] = 0
+#     table_comb.loc["", ""] = 0
 
 
 def get_partition_exp(current, future, channels_current, channels_future):
@@ -84,3 +122,11 @@ def find_combinations(s):
 
     combinations.insert(0, '')
     return combinations
+
+
+def create_table_combination(future, current):
+    combinations = [str(x) + '|' + str(y) for x in future for y in current]
+
+    dic_combinations = dict.fromkeys(combinations, None)
+
+    return dic_combinations
