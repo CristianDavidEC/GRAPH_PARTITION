@@ -152,15 +152,16 @@ def calcule_probability_dist(graph: Graph, probabilities, proccess_data):
 ### @ param probabilities: diccionario con las tablas de probabilidad
 ### @ param node_delete: tupla con los nodos a eliminar
 ### @ param probability_exp: diccionario con las expresiones de probabilidad, del grafo sin los nodos eliminados
-def complete_table_prob(probabilities, node_delete, probability_exp, size_current=0):
-    print(probabilities)
-    print(probability_exp)
-    print(node_delete)
+def complete_table_prob(probabilities, node_delete, probability_exp):
+    print(f'probabilities: {probabilities}')
+    print(f'node_delete: {node_delete}')
+    print(f'probability_exp: {probability_exp}')
+
     node1, node2 = node_delete
     future, current = get_type_nodes(node1, node2)
 
-    if size_current == 0:
-        return
+    # if size_current == 0:
+    #     return
 
     channels_current = probability_exp[future]
     position_change = calcule_position_modify_index(channels_current, current)
@@ -169,6 +170,8 @@ def complete_table_prob(probabilities, node_delete, probability_exp, size_curren
 
     probabilities[future] = modify_table_probability(
         probability_table, position_change)
+    
+    print(probabilities[future])
 
 
 ### Copia la tabla de probabilidad con el resultado de la marginalizacion
