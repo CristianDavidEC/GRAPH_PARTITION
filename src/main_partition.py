@@ -14,9 +14,9 @@ def main(process_data):
 if __name__ == '__main__':
     data_to_process = {
         'file': 'data/tablex5.json',
-        'future': 'ABCD',
-        'current': 'ABCD',
-        'state': '1000',
+        'future': 'ABCDE',
+        'current': 'ABCDE',
+        'state': '10001',
         'channels': 'ABCDE',
         #'method': 'partition' # partition | delete_edges | clear_zeros | heuristicas
     }

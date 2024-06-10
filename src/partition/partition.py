@@ -1,4 +1,5 @@
 import pandas as pd
+import probability.probability as prob
 
 
 def calculate_partition(process_data):
@@ -9,15 +10,19 @@ def calculate_partition(process_data):
         index=combinations_current, columns=combinations_future)
     table_comb.fillna(-1)
 
-    calcule_Porbability_partition(
+    calcule_probability_partition(
         combinations_current, combinations_future, table_comb, process_data)
 
 
-def calcule_Porbability_partition(currents, futures, table_comb, process_data):
+def calcule_probability_partition(currents, futures, table_comb, process_data):
+    probabilities = prob.create_probability_distributions(process_data['file'])
+
     channels_current = process_data['current']
     channels_future = process_data['future']
 
     add_special_case(channels_current, channels_future, table_comb)
+
+    print(table_comb)
 
     for current in currents:
         for future in futures:
@@ -32,8 +37,7 @@ def calcule_Porbability_partition(currents, futures, table_comb, process_data):
     pass
 
 
-
-### Special case to keys "" | "" x "ABC" | "ABC"
+# Special case to keys "" | "" x "ABC" | "ABC"
 def add_special_case(channels_current, channels_future, table_comb):
     table_comb.loc[channels_current, channels_future] = 0
     table_comb.loc["", ""] = 0
@@ -62,9 +66,8 @@ def missing_elements(input, original):
 
     return missing
 
+
 # Get the combination to channels
-
-
 def find_combinations(s):
     def backtrack(start, path, length):
         if len(path) == length:
