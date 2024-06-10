@@ -19,9 +19,9 @@ def remove_edges(network: Graph, probabilities, proccess_data):
         graph_processor = create_new_graph(original_graph, removed_edge)
         calcule_probability_dist(
             graph_processor, probabilities, proccess_data)
-        
+
         # print('Nodes:', graph_processor.nodes())
-        # print('Edges:', graph_processor.edges())    
+        # print('Edges:', graph_processor.edges())
 
         emd_value = emd.calcule_emd(
             graph_processor, proccess_data['state'], original_prob)
@@ -53,7 +53,7 @@ def remove_edges(network: Graph, probabilities, proccess_data):
             plt.show()
 
             return
-    
+
     print(f'Grafo con eliminaciones: \n {vars(network)}')
     print('Grafo completo')
     print(f'Edges\n {original_graph.edges(data=True)}')
@@ -63,11 +63,11 @@ def remove_edges(network: Graph, probabilities, proccess_data):
     plt.show()
 
     pos = nx.spring_layout(original_graph)
-    nx.draw(original_graph, pos, with_labels=True, node_color='lightblue', edge_color='gray')
+    nx.draw(original_graph, pos, with_labels=True,
+            node_color='lightblue', edge_color='gray')
     labels = nx.get_edge_attributes(original_graph, 'weight')
     nx.draw_networkx_edge_labels(original_graph, pos, edge_labels=labels)
     plt.show()
-    
 
 
 # def custom_remove_edge(network: Graph, probabilities, proccess_data):
@@ -99,7 +99,7 @@ def remove_edges(network: Graph, probabilities, proccess_data):
 #     {graph_processor.edges}
 #     REMOVED EDGE:
 #     {graph_processor.removed_edges}
-#     VALE LOSS  
+#     VALE LOSS
 #     {graph_processor.loss_value}
 #                   ''')
 #     else:
@@ -107,7 +107,7 @@ def remove_edges(network: Graph, probabilities, proccess_data):
 #         pass
 
 
-### Crea un nuevo grafo con el edge removido
+# Crea un nuevo grafo con el edge removido
 def create_new_graph(network: Graph, removed_edge):
     original_graph = network.copy()
     original_graph.remove_edge(*removed_edge)
@@ -119,13 +119,14 @@ def create_new_graph(network: Graph, removed_edge):
     return graph_processor
 
 
-### Calcula la nueva tabla de probabilidad del grafo sin el edge
-### @ param probabilities: diccionario con las tablas de probabilidad original
+# Calcula la nueva tabla de probabilidad del grafo sin el edge
+# @ param probabilities: diccionario con las tablas de probabilidad original
 def calcule_probability_dist(graph: Graph, probabilities, proccess_data):
     prob_expression = graph.conver_edges_to_probability_expression()
     tablet_marginalize = None
     tables_result = {}
-    
+    size_current = len(proccess_data['current'])
+
     for future, current in prob_expression.items():
         future_expression = future.replace("'", "")
         tablet_marginalize = get_marginalize_channel(
@@ -133,35 +134,33 @@ def calcule_probability_dist(graph: Graph, probabilities, proccess_data):
 
         tables_result[future] = tablet_marginalize
 
-    
-    # print(len(proccess_data['current']))
-    # if len(proccess_data['current']) == 1:
-    #     graph.table_probability = tables_result
-
-    #     return
-
     for edge in graph.removed_edges:
-        complete_table_prob(tables_result, edge, prob_expression)
+        complete_table_prob(tables_result, edge,
+                            prob_expression, size_current)
+        if size_current == 1:
+            node1, node2 = edge
+            future, current = get_type_nodes(node1, node2)
+            key_future = future.replace("'", "")
+            
+            table_future = probabilities[key_future].mean(axis=0).values
+            tables_result[future] = table_future
+
+    # print(tables_result)
 
     graph.table_probability = tables_result
 
 
-
-### Rellena el valor marginalizado de la tabla, "Copiando" el valor de probabilidad 
-### marguinalizado a la tabla como si tuviera todos sus valores originales.
-### @ param probabilities: diccionario con las tablas de probabilidad
-### @ param node_delete: tupla con los nodos a eliminar
-### @ param probability_exp: diccionario con las expresiones de probabilidad, del grafo sin los nodos eliminados
-def complete_table_prob(probabilities, node_delete, probability_exp):
-    print(f'probabilities: {probabilities}')
-    print(f'node_delete: {node_delete}')
-    print(f'probability_exp: {probability_exp}')
-
+# Rellena el valor marginalizado de la tabla, "Copiando" el valor de probabilidad
+# marguinalizado a la tabla como si tuviera todos sus valores originales.
+# @ param probabilities: diccionario con las tablas de probabilidad
+# @ param node_delete: tupla con los nodos a eliminar
+# @ param probability_exp: diccionario con las expresiones de probabilidad, del grafo sin los nodos eliminados
+def complete_table_prob(probabilities, node_delete, probability_exp, size_current=0):
     node1, node2 = node_delete
     future, current = get_type_nodes(node1, node2)
 
-    # if size_current == 0:
-    #     return
+    if size_current == 1:
+        return
 
     channels_current = probability_exp[future]
     position_change = calcule_position_modify_index(channels_current, current)
@@ -170,14 +169,12 @@ def complete_table_prob(probabilities, node_delete, probability_exp):
 
     probabilities[future] = modify_table_probability(
         probability_table, position_change)
-    
-    print(probabilities[future])
 
 
-### Copia la tabla de probabilidad con el resultado de la marginalizacion
-### @ param probability_table: tabla de probabilidad
-### @ param position: posicion a modificar
-### El posicion es el indice del caracter a modificar
+# Copia la tabla de probabilidad con el resultado de la marginalizacion
+# @ param probability_table: tabla de probabilidad
+# @ param position: posicion a modificar
+# El posicion es el indice del caracter a modificar
 def modify_table_probability(probability_table, position):
     copy_probability_table = probability_table.copy()
 
@@ -197,8 +194,8 @@ def modify_index(index, position, value):
     return index
 
 
-### Dados todos los current channels, y el nodo eliminado, determina en que posicion dela cadena
-### debe el el caracter a agregar en la indice de la tabla a modificar
+# Dados todos los current channels, y el nodo eliminado, determina en que posicion dela cadena
+# debe el el caracter a agregar en la indice de la tabla a modificar
 def calcule_position_modify_index(chanels, node):
     str_chanels = chanels + node
     sorted_channels = ''.join(sorted(str_chanels))

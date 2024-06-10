@@ -17,9 +17,9 @@ def calcule_emd(graph: Graph, state, original_probability):
     list_original_prob = np.ascontiguousarray(
         list_original_prob, dtype=np.double)
     
-    print('modify prob:', list_modofy_prob)
-    print('original prob:', list_original_prob)
-    print('Haming matrix:', haming_matrix)
+    # print('modify prob:', list_modofy_prob)
+    # print('original prob:', list_original_prob)
+    # print('Haming matrix:', haming_matrix)
 
     emd_value = emd(list_modofy_prob, list_original_prob, haming_matrix)
 
@@ -30,9 +30,9 @@ def get_probability_in_state(graph: Graph, state):
     table_probability = graph.table_probability
     prob_state = {}
     for future, table in table_probability.items():
-        # if isinstance(table, np.ndarray):
-        #     prob_state[future] = table
-        #     continue
+        if isinstance(table, np.ndarray):
+            prob_state[future] = table
+            continue
         if state in table.index:
             prob_state[future] = table.loc[state].values
 
