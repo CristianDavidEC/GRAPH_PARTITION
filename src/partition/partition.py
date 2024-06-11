@@ -18,8 +18,14 @@ def calcule_probability_partition(currents, futures, dic_combinations, process_d
     probabilities = utils.create_probability_distributions(
         process_data['file'])
 
+    original_prob = prob.original_probability_partition(
+        probabilities, process_data['current'], process_data['future'], process_data['channels'])
+
     channels_current = process_data['current']
     channels_future = process_data['future']
+
+    process_data['original_channels'] = channels_current
+    
 
     for current in currents:
         for future in futures:
@@ -27,34 +33,29 @@ def calcule_probability_partition(currents, futures, dic_combinations, process_d
                 current, future, channels_current, channels_future)
 
             if is_valid_partition(part_left, part_right):
-                # print(f'{part_left[0]}| {part_left[1]} x {
-                #     part_right[0]} | {part_right[1]}')
-
+                # print(f'{part_left[0]}|{part_left[1]} x {
+                #     part_right[0]}|{part_right[1]}')
                 partition_left_tab = calculate_parts(
-                    part_left, dic_combinations, probabilities, process_data)
+                    part_left, dic_combinations, probabilities, process_data, original_prob)
                 partition_right_tab = calculate_parts(
-                    part_right, dic_combinations, probabilities, process_data)
+                    part_right, dic_combinations, probabilities, process_data, original_prob)
             else:
-                pass
-                # print('Invalid partition')
-                # print(part_left)
-                # print(part_right)
                 calculate_parts(part_left, dic_combinations,
-                                probabilities, process_data)
+                                probabilities, process_data, original_prob)
                 calculate_parts(part_right, dic_combinations,
-                                probabilities, process_data)
+                                probabilities, process_data, original_prob)
 
         if all(dic_combinations.values()):
+            print('all combinations')
             break
-        
-    
-    print(dic_combinations)
-    
 
-def calculate_parts(partition, dic_combinations, probabilities, process_data):
+    print(dic_combinations)
+
+
+def calculate_parts(partition, dic_combinations, probabilities, process_data, original_prob):
     furure, current = partition
-    table_prob_partition = None 
-    key_comb = current+'|'+furure 
+    table_prob_partition = None
+    key_comb = current+'|'+furure
 
     if furure == '' and current == '':
         dic_combinations[key_comb] = 0
@@ -62,19 +63,20 @@ def calculate_parts(partition, dic_combinations, probabilities, process_data):
 
     state = get_value_state(
         current, process_data['current'], process_data['state'])
-    
+
     data_to_process = {
         'future': furure,
         'current': current,
         'state': state,
         'channels': process_data['channels'],
+        'original_channels': process_data['original_channels'],
     }
 
-    if dic_combinations[key_comb] is not None:
-        table_prob_partition = dic_combinations[key_comb]
+    # if dic_combinations[key_comb] is not None:
+    #     table_prob_partition = dic_combinations[key_comb]
 
     table_prob_partition = prob.get_probability_tables_partition(
-        data_to_process, probabilities, dic_combinations)
+        data_to_process, probabilities, dic_combinations, original_prob)
 
 
 def get_value_state(current, all_current, state):
@@ -100,8 +102,6 @@ def is_valid_partition(part_left, part_right):
 # def add_special_case(channels_current, channels_future, table_comb):
 #     table_comb.loc[channels_current, channels_future] = 0
 #     table_comb.loc["", ""] = 0
-
-
 def get_partition_exp(current, future, channels_current, channels_future):
     current_comple = missing_elements(current, channels_current)
     future_comple = missing_elements(future, channels_future)

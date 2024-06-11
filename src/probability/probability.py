@@ -5,7 +5,6 @@ import probability.marginalize as mg
 import probability.utils as utils
 
 
-
 # The probability of
 # P(ABC future | ABC current) = P(A future | ABC current) * P(B future | ABC current) * P(C future | ABC current)
 # * -> Tensor product
@@ -23,35 +22,41 @@ def calculate_joint_probability(probability_tables):
 
     return df_final_tb
 
+
 def create_index_table(num_elements):
     combinations = list(itertools.product([0, 1], repeat=num_elements))
     combinations_string = [''.join(map(str, comb)) for comb in combinations]
-    
+
     return combinations_string
 
-## Get the marginalize table for the future channels, with your probabilities in a state channel
+# Get the marginalize table for the future channels, with your probabilities in a state channel
+
+
 def get_probability_tables(process_data, probs_table):
     future_channels = process_data['future']
     current_channels = process_data['current']
     state_current_channels = process_data['state']
     all_channels = process_data['channels']
     probability_tables = {}
-    
+
     if future_channels == '':
-        full_matrix = get_original_probability(probs_table, current_channels, future_channels, all_channels)
-        maginalize_table = mg.get_marginalize_channel(full_matrix, current_channels, all_channels)
+        full_matrix = get_original_probability(
+            probs_table, current_channels, future_channels, all_channels)
+        maginalize_table = mg.get_marginalize_channel(
+            full_matrix, current_channels, all_channels)
 
         row_sum = maginalize_table.loc[state_current_channels].sum()
         probability_tables[''] = np.array([row_sum, 1 - row_sum])
 
     for f_channel in future_channels:
         if current_channels == '':
-            probability_tables[f_channel] = get_prob_empty_current(probs_table[f_channel])
+            probability_tables[f_channel] = get_prob_empty_current(
+                probs_table[f_channel])
             continue
 
         table_prob = mg.get_marginalize_channel(
             probs_table[f_channel], current_channels, all_channels)
-        
+
         row_probability = table_prob.loc[state_current_channels]
         probability_tables[f_channel] = row_probability.values
 
@@ -67,7 +72,8 @@ def get_original_probability(probs_table, current_channels, future_channels, all
 
     for key, table in probs_table.items():
         if key in future_channels:
-            new_table = mg.get_marginalize_channel(table, current_channels, all_channels)
+            new_table = mg.get_marginalize_channel(
+                table, current_channels, all_channels)
             marg_table[key] = new_table
 
     index_tables = marg_table[future_channels[0]].index
@@ -79,7 +85,7 @@ def get_original_probability(probs_table, current_channels, future_channels, all
         for key, table in marg_table.items():
             value = table.loc[index].values
             prob_state[key] = value
-        
+
         joint_prob = calculate_joint_probability(prob_state)
         columns = joint_prob['state'].values
         full_matriz.columns = columns
@@ -88,25 +94,24 @@ def get_original_probability(probs_table, current_channels, future_channels, all
     return full_matriz
 
 
-def get_probability_tables_partition(process_data, probs_table, table_comb):
+def get_probability_tables_partition(process_data, probs_table, table_comb, original_prob=None):
     future_channels = process_data['future']
     current_channels = process_data['current']
     state_current_channels = process_data['state']
     all_channels = process_data['channels']
     probability_tables = {}
+    original_channels = process_data['original_channels']
 
     # print(future_channels, current_channels)
 
-    key_comb = future_channels + '|' + current_channels
+    key_comb = future_channels+'|'+current_channels
 
-    if table_comb[key_comb] is not None:
-        return table_comb[key_comb]
+    # if table_comb[key_comb] is not None:
+    #     return table_comb[key_comb]
 
     if future_channels == '':
-        return
-        full_matrix = original_probability_partition(probs_table, current_channels, future_channels, all_channels)
-        maginalize_table = mg.get_marginalize_channel(full_matrix, current_channels, all_channels)
-
+        maginalize_table = mg.get_marginalize_channel(
+            original_prob, current_channels, original_channels)
         row_sum = maginalize_table.loc[state_current_channels].sum()
         probability_tables[''] = np.array([row_sum, 1 - row_sum])
 
@@ -114,36 +119,32 @@ def get_probability_tables_partition(process_data, probs_table, table_comb):
 
     for f_channel in future_channels:
         key_comb = f_channel + '|' + current_channels
-        if table_comb[key_comb] is not None:
-            probability_tables[f_channel] = table_comb[key_comb]
-            continue
+        # if table_comb[key_comb] is not None:
+        #     probability_tables[f_channel] = table_comb[key_comb]
+        #     continue
 
         if current_channels == '':
-            probability_tables[f_channel] = get_prob_empty_current(probs_table[f_channel])
+            probability_tables[f_channel] = get_prob_empty_current(
+                probs_table[f_channel])
             table_comb[key_comb] = probability_tables
             continue
 
         table_prob = mg.get_marginalize_channel(
             probs_table[f_channel], current_channels, all_channels)
-        
-        # print(table_prob)
+
         row_probability = table_prob.loc[state_current_channels]
         probability_tables[f_channel] = row_probability.values
         table_comb[key_comb] = probability_tables
 
     return probability_tables
-        
-    
-    
+
+
 def original_probability_partition(probs_table, current_channels, future_channels, all_channels):
     marg_table = {}
-
-    print(future_channels)
-    print(current_channels)
-
     for key, table in probs_table.items():
         if key in future_channels:
-            new_table = mg.get_marginalize_channel(table, current_channels, all_channels)
+            new_table = mg.get_marginalize_channel(
+                table, current_channels, all_channels)
             marg_table[key] = new_table
 
     index_tables = marg_table[current_channels[0]].index
@@ -155,12 +156,10 @@ def original_probability_partition(probs_table, current_channels, future_channel
         for key, table in marg_table.items():
             value = table.loc[index].values
             prob_state[key] = value
-        
+
         joint_prob = calculate_joint_probability(prob_state)
         columns = joint_prob['state'].values
         full_matriz.columns = columns
         full_matriz.loc[index] = joint_prob['probability'].values
 
     return full_matriz
-
-    
