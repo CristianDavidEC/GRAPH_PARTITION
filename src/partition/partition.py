@@ -8,7 +8,7 @@ def calculate_partition(process_data):
     combinations_future = find_combinations(process_data['future'])
 
     dic_combinations = create_table_combination(
-        combinations_current, combinations_future)
+        combinations_future, combinations_current)
 
     calcule_probability_partition(
         combinations_current, combinations_future, dic_combinations, process_data)
@@ -25,16 +25,16 @@ def calcule_probability_partition(currents, futures, dic_combinations, process_d
     channels_future = process_data['future']
 
     process_data['original_channels'] = channels_current
-    
 
     for current in currents:
         for future in futures:
             part_left, part_right = get_partition_exp(
                 current, future, channels_current, channels_future)
-
+            
+            print(f'{part_left[0]}|{part_left[1]} x {
+                    part_right[0]}|{part_right[1]}')
+            
             if is_valid_partition(part_left, part_right):
-                # print(f'{part_left[0]}|{part_left[1]} x {
-                #     part_right[0]}|{part_right[1]}')
                 partition_left_tab = calculate_parts(
                     part_left, dic_combinations, probabilities, process_data, original_prob)
                 partition_right_tab = calculate_parts(
@@ -45,17 +45,16 @@ def calcule_probability_partition(currents, futures, dic_combinations, process_d
                 calculate_parts(part_right, dic_combinations,
                                 probabilities, process_data, original_prob)
 
-        if all(dic_combinations.values()):
+        if all(val is not None for val in dic_combinations.values()):
             print('all combinations')
             break
 
-    print(dic_combinations)
 
 
 def calculate_parts(partition, dic_combinations, probabilities, process_data, original_prob):
     furure, current = partition
     table_prob_partition = None
-    key_comb = current+'|'+furure
+    key_comb = furure+'|'+current
 
     if furure == '' and current == '':
         dic_combinations[key_comb] = 0
@@ -72,8 +71,8 @@ def calculate_parts(partition, dic_combinations, probabilities, process_data, or
         'original_channels': process_data['original_channels'],
     }
 
-    # if dic_combinations[key_comb] is not None:
-    #     table_prob_partition = dic_combinations[key_comb]
+    if dic_combinations[key_comb] is not None:
+         table_prob_partition = dic_combinations[key_comb]
 
     table_prob_partition = prob.get_probability_tables_partition(
         data_to_process, probabilities, dic_combinations, original_prob)
