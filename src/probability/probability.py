@@ -102,31 +102,32 @@ def get_probability_tables_partition(process_data, probs_table, table_comb, orig
     probability_tables = {}
     original_channels = process_data['original_channels']
 
-    # print(future_channels, current_channels)
-
     key_comb = future_channels+'|'+current_channels
 
-    if key_comb in table_comb.keys() and table_comb[key_comb] is not None:
-        return table_comb[key_comb]
+    # if table_comb[key_comb] is not None:
+    #     probability_tables = table_comb[key_comb]
+    #     return probability_tables
 
     if future_channels == '':
         maginalize_table = mg.get_marginalize_channel(
             original_prob, current_channels, original_channels)
         row_sum = maginalize_table.loc[state_current_channels].sum()
-        probability_tables[''] = np.array([row_sum, 1 - row_sum])
-
-        table_comb[key_comb] = probability_tables
+        result = np.array([row_sum, 1 - row_sum])
+        probability_tables[''] = result
+        table_comb[key_comb] = {}
+        table_comb[key_comb][''] = result
 
     for f_channel in future_channels:
         key = f_channel + '|' + current_channels
-        if key in table_comb.keys() and table_comb[key] is not None:
-            probability_tables[f_channel] = table_comb[key_comb]
+        if table_comb[key] is not None:
+            probability_tables = table_comb[key]
             continue
 
         if current_channels == '':
-            probability_tables[f_channel] = get_prob_empty_current(
-                probs_table[f_channel])
-            table_comb[key] = probability_tables
+            result = get_prob_empty_current(probs_table[f_channel])
+            probability_tables[f_channel] = result
+            table_comb[key] = {}
+            table_comb[key][f_channel] = result
             continue
 
         table_prob = mg.get_marginalize_channel(
@@ -134,7 +135,8 @@ def get_probability_tables_partition(process_data, probs_table, table_comb, orig
 
         row_probability = table_prob.loc[state_current_channels]
         probability_tables[f_channel] = row_probability.values
-        table_comb[key] = probability_tables
+        table_comb[key] = {}
+        table_comb[key][f_channel] = probability_tables[f_channel]
 
     table_comb[key_comb] = probability_tables
 

@@ -31,9 +31,6 @@ def calcule_probability_partition(currents, futures, dic_combinations, process_d
             part_left, part_right = get_partition_exp(
                 current, future, channels_current, channels_future)
             
-            print(f'{part_left[0]}|{part_left[1]} x {
-                    part_right[0]}|{part_right[1]}')
-            
             if is_valid_partition(part_left, part_right):
                 partition_left_tab = calculate_parts(
                     part_left, dic_combinations, probabilities, process_data, original_prob)
@@ -46,8 +43,8 @@ def calcule_probability_partition(currents, futures, dic_combinations, process_d
                                 probabilities, process_data, original_prob)
 
         if all(val is not None for val in dic_combinations.values()):
-            print('all combinations')
             break
+    
 
 
 
@@ -72,10 +69,17 @@ def calculate_parts(partition, dic_combinations, probabilities, process_data, or
     }
 
     if dic_combinations[key_comb] is not None:
-         table_prob_partition = dic_combinations[key_comb]
+        table_prob_partition = dic_combinations[key_comb]
 
     table_prob_partition = prob.get_probability_tables_partition(
         data_to_process, probabilities, dic_combinations, original_prob)
+    
+    #print(table_prob_partition)
+
+    # prob_result = prob.calculate_joint_probability(table_prob_partition)
+    # print(f'Combo {key_comb}: {prob_result}')
+    
+    # return table_prob_partition
 
 
 def get_value_state(current, all_current, state):
