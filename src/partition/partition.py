@@ -26,27 +26,20 @@ def calcule_probability_partition(currents, futures, dic_combinations, process_d
 
     process_data['original_channels'] = channels_current
 
+    print(dic_combinations)
+
     for current in currents:
         for future in futures:
             part_left, part_right = get_partition_exp(
                 current, future, channels_current, channels_future)
-            
-            if is_valid_partition(part_left, part_right):
-                partition_left_tab = calculate_parts(
-                    part_left, dic_combinations, probabilities, process_data, original_prob)
-                partition_right_tab = calculate_parts(
-                    part_right, dic_combinations, probabilities, process_data, original_prob)
-            else:
-                calculate_parts(part_left, dic_combinations,
-                                probabilities, process_data, original_prob)
-                calculate_parts(part_right, dic_combinations,
-                                probabilities, process_data, original_prob)
+        
+            partition_left_tab = calculate_parts(
+                part_left, dic_combinations, probabilities, process_data, original_prob)
+            partition_right_tab = calculate_parts(
+                part_right, dic_combinations, probabilities, process_data, original_prob)
 
-        if all(val is not None for val in dic_combinations.values()):
-            break
-    
-
-
+        # if all(val is not None for val in dic_combinations.values()):
+        #     break
 
 def calculate_parts(partition, dic_combinations, probabilities, process_data, original_prob):
     furure, current = partition
@@ -68,16 +61,23 @@ def calculate_parts(partition, dic_combinations, probabilities, process_data, or
         'original_channels': process_data['original_channels'],
     }
 
-    if dic_combinations[key_comb] is not None:
-        table_prob_partition = dic_combinations[key_comb]
+    # if len(dic_combinations[key_comb]) > 0:
+    #     print('Existe')
+    #     table_prob_partition = dic_combinations[key_comb]
+    # else:
+    #     table_prob_partition = prob.get_probability_tables_partition(
+    #         data_to_process, probabilities, dic_combinations, original_prob)
 
     table_prob_partition = prob.get_probability_tables_partition(
         data_to_process, probabilities, dic_combinations, original_prob)
-    
-    #print(table_prob_partition)
+    print(f'Combo {key_comb}:\n {table_prob_partition}')
+    print(dic_combinations)
+    print('------------------------')
+    # print(key_comb)
+    # print(table_prob_partition)
 
     # prob_result = prob.calculate_joint_probability(table_prob_partition)
-    # print(f'Combo {key_comb}: {prob_result}')
+    # print(f'Combo {key_comb}:\n {prob_result}')
     
     # return table_prob_partition
 
@@ -147,6 +147,6 @@ def find_combinations(s):
 def create_table_combination(future, current):
     combinations = [str(x) + '|' + str(y) for x in future for y in current]
 
-    dic_combinations = dict.fromkeys(combinations, None)
+    dic_combinations = dict.fromkeys(combinations, {})
 
     return dic_combinations

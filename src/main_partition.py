@@ -13,6 +13,7 @@ def main(process_data):
     
 if __name__ == '__main__':
     data_to_process = {
+        #'file': 'src/data/tablex5.json',
         'file': 'data/tablex5.json',
         'future': 'ABC',
         'current': 'ABC',
