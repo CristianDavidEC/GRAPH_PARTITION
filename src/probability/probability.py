@@ -3,6 +3,7 @@ import itertools
 import pandas as pd
 import probability.marginalize as mg
 import probability.utils as utils
+from concurrent.futures import ThreadPoolExecutor
 
 
 # The probability of
@@ -144,7 +145,6 @@ def get_probability_tables_partition(process_data, probs_table, table_comb, orig
     return table_comb[key_comb]
 
 
-
 def original_probability_partition(probs_table, current_channels, future_channels, all_channels):
     marg_table = {}
     for key, table in probs_table.items():
@@ -169,3 +169,55 @@ def original_probability_partition(probs_table, current_channels, future_channel
         full_matriz.loc[index] = joint_prob['probability'].values
 
     return full_matriz
+
+
+def tensor_product_partition(partition_left, partition_right, parts_exp):
+    part_left, part_right = parts_exp
+    positions_channels = get_posicion_elements(part_left[0], part_right[0])
+    retult = []
+
+    with ThreadPoolExecutor() as executor:
+        futures = [
+            executor.submit(
+                compute_tensor_product, left, right, parts_exp, positions_channels)
+                for _, left in partition_left.iterrows()
+                for _, right in partition_right.iterrows()
+        ]
+
+        for future in futures:
+            response = future.result()
+            retult.append(response)
+
+    df_results = pd.DataFrame(retult, columns=['state', 'probability'])
+
+    return df_results
+
+
+def compute_tensor_product(part_left, part_right, parts_exp, positions):
+    tensor_product = part_left['probability'] * part_right['probability']
+    index_product = get_index_product(part_left['state'], part_right['state'], positions)
+
+    result =[index_product, tensor_product]
+
+    return result
+
+
+
+def get_index_product(state_left, state_right, positions):
+    result_string = list(state_left)
+
+    for index, char in zip(positions, state_right):
+        result_string.insert(index, char)
+
+    return ''.join(result_string)
+
+    
+
+
+def get_posicion_elements(channels_left, channels_right):
+    unit_channels = ''.join(set(channels_left + channels_right))
+    order_channels = ''.join(sorted(unit_channels))
+
+    positions_channels = tuple(order_channels.index(char) for char in channels_right)
+
+    return positions_channels

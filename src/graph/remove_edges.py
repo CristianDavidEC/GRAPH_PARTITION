@@ -5,7 +5,7 @@ import pandas as pd
 from probability.marginalize import get_marginalize_channel
 from probability.utils import get_type_nodes
 import probability.probability as prob
-import graph.emd_calculation as emd
+import emd.emd_calculation as emd
 import matplotlib.pyplot as plt
 
 

@@ -1,6 +1,7 @@
 import pandas as pd
 import probability.probability as prob
 import probability.utils as utils
+import time as t
 
 
 def calculate_partition(process_data):
@@ -26,60 +27,68 @@ def calcule_probability_partition(currents, futures, dic_combinations, process_d
 
     process_data['original_channels'] = channels_current
 
-    print(dic_combinations)
-
+    init = t.time()
     for current in currents:
+        if all(bool(valor) for valor in dic_combinations.values()):
+                break
         for future in futures:
-            part_left, part_right = get_partition_exp(
+            parts = get_partition_exp(
                 current, future, channels_current, channels_future)
+            
+            part_left, part_right = parts
         
             partition_left_tab = calculate_parts(
                 part_left, dic_combinations, probabilities, process_data, original_prob)
             partition_right_tab = calculate_parts(
                 part_right, dic_combinations, probabilities, process_data, original_prob)
+            
+            calcule_probability_parts(
+                partition_left_tab, partition_right_tab, original_prob, parts)
+            
+    fin = t.time()
+    print(f'Time: {fin - init}')
 
-        # if all(val is not None for val in dic_combinations.values()):
-        #     break
 
 def calculate_parts(partition, dic_combinations, probabilities, process_data, original_prob):
     furure, current = partition
     table_prob_partition = None
     key_comb = furure+'|'+current
 
-    if furure == '' and current == '':
-        dic_combinations[key_comb] = 0
-        return
+    if dic_combinations[key_comb]:
+        table_prob_partition = dic_combinations[key_comb]
+        
+    else:
+        if furure == '' and current == '':
+            dic_combinations[key_comb] = -1
+            return
 
-    state = get_value_state(
-        current, process_data['current'], process_data['state'])
+        state = get_value_state(
+            current, process_data['current'], process_data['state'])
 
-    data_to_process = {
-        'future': furure,
-        'current': current,
-        'state': state,
-        'channels': process_data['channels'],
-        'original_channels': process_data['original_channels'],
-    }
+        data_to_process = {
+            'future': furure,
+            'current': current,
+            'state': state,
+            'channels': process_data['channels'],
+            'original_channels': process_data['original_channels'],
+        }
 
-    # if len(dic_combinations[key_comb]) > 0:
-    #     print('Existe')
-    #     table_prob_partition = dic_combinations[key_comb]
-    # else:
-    #     table_prob_partition = prob.get_probability_tables_partition(
-    #         data_to_process, probabilities, dic_combinations, original_prob)
+        table_prob_partition = prob.get_probability_tables_partition(
+            data_to_process, probabilities, dic_combinations, original_prob)
 
-    table_prob_partition = prob.get_probability_tables_partition(
-        data_to_process, probabilities, dic_combinations, original_prob)
-    print(f'Combo {key_comb}:\n {table_prob_partition}')
-    print(dic_combinations)
-    print('------------------------')
-    # print(key_comb)
-    # print(table_prob_partition)
+    #print(f'{key_comb} = {table_prob_partition}')
+    prob_result = prob.calculate_joint_probability(table_prob_partition)
+    #print(f'{key_comb} = {prob_result}')
+        
+    return prob_result
 
-    # prob_result = prob.calculate_joint_probability(table_prob_partition)
-    # print(f'Combo {key_comb}:\n {prob_result}')
-    
-    # return table_prob_partition
+
+def calcule_probability_parts(partition_left, partition_right, original_prob, parts_exp):
+    if partition_left is None or partition_right is None:
+        return 10000
+    tensor_product = prob.tensor_product_partition(partition_left, partition_right, parts_exp)
+
+    print(f'{parts_exp} = {tensor_product}')
 
 
 def get_value_state(current, all_current, state):

@@ -15,9 +15,9 @@ if __name__ == '__main__':
     data_to_process = {
         #'file': 'src/data/tablex5.json',
         'file': 'data/tablex5.json',
-        'future': 'ABC',
-        'current': 'ABC',
-        'state': '100',
+        'future': 'ABCD',
+        'current': 'ABCD',
+        'state': '1000',
         'channels': 'ABCDE',
         #'method': 'partition' # partition | delete_edges | clear_zeros | heuristicas
     }

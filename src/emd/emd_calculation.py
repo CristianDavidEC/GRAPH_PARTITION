@@ -47,3 +47,7 @@ def hamming_distance_matrix(states):
     haming_matrix = cdist(state, state, 'hamming') * len(state[0])
 
     return haming_matrix
+
+
+def emd_partition(graph: Graph, state, original_probability):
+    pass
