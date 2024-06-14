@@ -106,10 +106,8 @@ def get_probability_tables_partition(process_data, probs_table, table_comb, orig
     key_comb = future_channels+'|'+current_channels
 
     if future_channels == '':
-        maginalize_table = mg.get_marginalize_channel(
-            original_prob, current_channels, original_channels)
-        row_sum = maginalize_table.loc[state_current_channels].sum()
-        result = np.array([row_sum, 1 - row_sum])
+        result = get_future_empty(
+            original_prob, current_channels, original_channels, state_current_channels)
         probability_tables[''] = result
         if not table_comb[key_comb]:
             table_comb[key_comb] = probability_tables
@@ -180,8 +178,8 @@ def tensor_product_partition(partition_left, partition_right, parts_exp):
         futures = [
             executor.submit(
                 compute_tensor_product, left, right, parts_exp, positions_channels)
-                for _, left in partition_left.iterrows()
-                for _, right in partition_right.iterrows()
+            for _, left in partition_left.iterrows()
+            for _, right in partition_right.iterrows()
         ]
 
         for future in futures:
@@ -195,15 +193,18 @@ def tensor_product_partition(partition_left, partition_right, parts_exp):
 
 def compute_tensor_product(part_left, part_right, parts_exp, positions):
     tensor_product = part_left['probability'] * part_right['probability']
-    index_product = get_index_product(part_left['state'], part_right['state'], positions)
+    index_product = get_index_product(
+        part_left['state'], part_right['state'], positions, parts_exp[0])
 
-    result =[index_product, tensor_product]
+    result = [index_product, tensor_product]
 
     return result
 
 
+def get_index_product(state_left, state_right, positions, parts_exp):
+    part_let_future = parts_exp[0]
+    if part_let_future == "": return state_right
 
-def get_index_product(state_left, state_right, positions):
     result_string = list(state_left)
 
     for index, char in zip(positions, state_right):
@@ -211,13 +212,21 @@ def get_index_product(state_left, state_right, positions):
 
     return ''.join(result_string)
 
-    
-
 
 def get_posicion_elements(channels_left, channels_right):
     unit_channels = ''.join(set(channels_left + channels_right))
     order_channels = ''.join(sorted(unit_channels))
 
-    positions_channels = tuple(order_channels.index(char) for char in channels_right)
+    positions_channels = tuple(order_channels.index(char)
+                               for char in channels_right)
 
     return positions_channels
+
+
+def get_future_empty(original_prob, current_channels, original_channels, state_current_channels):
+    maginalize_table = mg.get_marginalize_channel(
+        original_prob, current_channels, original_channels)
+    row_sum = maginalize_table.loc[state_current_channels].sum()
+    result = np.array([row_sum])
+
+    return result

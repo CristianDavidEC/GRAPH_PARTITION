@@ -78,7 +78,7 @@ def calculate_parts(partition, dic_combinations, probabilities, process_data, or
 
     #print(f'{key_comb} = {table_prob_partition}')
     prob_result = prob.calculate_joint_probability(table_prob_partition)
-    #print(f'{key_comb} = {prob_result}')
+    
         
     return prob_result
 
