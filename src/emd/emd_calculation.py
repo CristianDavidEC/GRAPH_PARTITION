@@ -4,6 +4,7 @@ from graph.graph import Graph
 import probability.probability as prob
 from pyemd import emd
 import numpy as np
+import pandas as pd
 
 
 def calcule_emd(graph: Graph, state, original_probability):
@@ -16,10 +17,6 @@ def calcule_emd(graph: Graph, state, original_probability):
     list_modofy_prob = np.ascontiguousarray(list_modofy_prob, dtype=np.double)
     list_original_prob = np.ascontiguousarray(
         list_original_prob, dtype=np.double)
-    
-    # print('modify prob:', list_modofy_prob)
-    # print('original prob:', list_original_prob)
-    # print('Haming matrix:', haming_matrix)
 
     emd_value = emd(list_modofy_prob, list_original_prob, haming_matrix)
 
@@ -49,5 +46,27 @@ def hamming_distance_matrix(states):
     return haming_matrix
 
 
-def emd_partition(graph: Graph, state, original_probability):
-    pass
+def emd_partition(probability_table, original_probability, state):
+    list_index = list(original_probability.columns)
+    order_table = sorter_dataframe(probability_table, list_index)
+    haming_matrix = hamming_distance_matrix(order_table['state'].values)
+
+    list_modofy_prob = order_table['probability'].values
+    list_original_prob = original_probability.loc[state].to_numpy()
+
+    list_modofy_prob = np.ascontiguousarray(list_modofy_prob, dtype=np.double)
+    list_original_prob = np.ascontiguousarray(
+        list_original_prob, dtype=np.double)
+
+    emd_value = emd(list_modofy_prob, list_original_prob, haming_matrix)
+
+    return emd_value
+
+
+def sorter_dataframe(dataframe, list_order):
+    dataframe['order'] = pd.Categorical(
+        dataframe['state'], categories=list_order, ordered=True
+    )
+    new_df = dataframe.sort_values('order').drop(columns='order')
+
+    return new_df

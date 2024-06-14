@@ -2,18 +2,24 @@ import pandas as pd
 import probability.probability as prob
 import probability.utils as utils
 import time as t
+import emd.emd_calculation as emd
 
 
 def calculate_partition(process_data):
+    start = t.time()
     combinations_current = find_combinations(process_data['current'])
     combinations_future = find_combinations(process_data['future'])
 
     dic_combinations = create_table_combination(
         combinations_future, combinations_current)
 
-    calcule_probability_partition(
+    result_partition = calcule_probability_partition(
         combinations_current, combinations_future, dic_combinations, process_data)
+    
+    print(result_partition)
 
+    print(t.time() - start)
+    
 
 def calcule_probability_partition(currents, futures, dic_combinations, process_data):
     probabilities = utils.create_probability_distributions(
@@ -27,26 +33,39 @@ def calcule_probability_partition(currents, futures, dic_combinations, process_d
 
     process_data['original_channels'] = channels_current
 
-    init = t.time()
+    best_partition = {
+        'partition': None,
+        'value': float('inf')
+    }
+
     for current in currents:
         if all(bool(valor) for valor in dic_combinations.values()):
-                break
+            break
         for future in futures:
             parts = get_partition_exp(
                 current, future, channels_current, channels_future)
-            
+
             part_left, part_right = parts
-        
+
             partition_left_tab = calculate_parts(
                 part_left, dic_combinations, probabilities, process_data, original_prob)
             partition_right_tab = calculate_parts(
                 part_right, dic_combinations, probabilities, process_data, original_prob)
-            
-            calcule_probability_parts(
-                partition_left_tab, partition_right_tab, original_prob, parts)
-            
-    fin = t.time()
-    print(f'Time: {fin - init}')
+
+            result_emd = calcule_emd_partitions(
+                partition_left_tab, partition_right_tab, original_prob, parts, process_data['state'])
+
+            if result_emd == 0:
+                best_partition['partition'] = parts
+                best_partition['value'] = result_emd
+
+                return best_partition
+
+            if result_emd < best_partition['value']:
+                best_partition['partition'] = parts
+                best_partition['value'] = result_emd
+
+    return best_partition
 
 
 def calculate_parts(partition, dic_combinations, probabilities, process_data, original_prob):
@@ -56,7 +75,7 @@ def calculate_parts(partition, dic_combinations, probabilities, process_data, or
 
     if dic_combinations[key_comb]:
         table_prob_partition = dic_combinations[key_comb]
-        
+
     else:
         if furure == '' and current == '':
             dic_combinations[key_comb] = -1
@@ -76,19 +95,21 @@ def calculate_parts(partition, dic_combinations, probabilities, process_data, or
         table_prob_partition = prob.get_probability_tables_partition(
             data_to_process, probabilities, dic_combinations, original_prob)
 
-    #print(f'{key_comb} = {table_prob_partition}')
     prob_result = prob.calculate_joint_probability(table_prob_partition)
-    
-        
+
     return prob_result
 
 
-def calcule_probability_parts(partition_left, partition_right, original_prob, parts_exp):
+def calcule_emd_partitions(partition_left, partition_right, original_prob, parts_exp, state):
     if partition_left is None or partition_right is None:
         return 10000
-    tensor_product = prob.tensor_product_partition(partition_left, partition_right, parts_exp)
+    
+    tensor_product = prob.tensor_product_partition(
+        partition_left, partition_right, parts_exp)
 
-    print(f'{parts_exp} = {tensor_product}')
+    value_emd = emd.emd_partition(tensor_product, original_prob, state)
+
+    return value_emd
 
 
 def get_value_state(current, all_current, state):

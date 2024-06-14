@@ -15,7 +15,7 @@ if __name__ == '__main__':
     data_to_process = {
         #'file': 'src/data/tablex5.json',
         'file': 'data/tablex5.json',
-        'future': 'ABC',
+        'future': 'BC',
         'current': 'ABC',
         'state': '100',
         'channels': 'ABCDE',

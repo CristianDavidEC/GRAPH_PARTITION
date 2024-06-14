@@ -77,7 +77,8 @@ def get_original_probability(probs_table, current_channels, future_channels, all
                 table, current_channels, all_channels)
             marg_table[key] = new_table
 
-    index_tables = marg_table[future_channels[0]].index
+    key_index = next(iter(marg_table))
+    index_tables = marg_table[key_index].index
     n_cols = 2 ** len(future_channels)
     full_matriz = pd.DataFrame(columns=[f'{key}' for key in range(n_cols)])
 
@@ -104,6 +105,8 @@ def get_probability_tables_partition(process_data, probs_table, table_comb, orig
     original_channels = process_data['original_channels']
 
     key_comb = future_channels+'|'+current_channels
+    print('---------------------')
+    print(key_comb)
 
     if future_channels == '':
         result = get_future_empty(
@@ -151,7 +154,8 @@ def original_probability_partition(probs_table, current_channels, future_channel
                 table, current_channels, all_channels)
             marg_table[key] = new_table
 
-    index_tables = marg_table[current_channels[0]].index
+    key_index = next(iter(marg_table))
+    index_tables = marg_table[key_index].index
     n_cols = 2 ** len(future_channels)
     full_matriz = pd.DataFrame(columns=[f'{key}' for key in range(n_cols)])
 
@@ -224,6 +228,10 @@ def get_posicion_elements(channels_left, channels_right):
 
 
 def get_future_empty(original_prob, current_channels, original_channels, state_current_channels):
+    print('get_future_empty')
+    print(current_channels)
+    print(original_channels)
+    print(state_current_channels)
     maginalize_table = mg.get_marginalize_channel(
         original_prob, current_channels, original_channels)
     row_sum = maginalize_table.loc[state_current_channels].sum()
