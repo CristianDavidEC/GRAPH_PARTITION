@@ -1,43 +1,38 @@
 import pandas as pd
 
+import pandas as pd
+
 def get_marginalize_channel(tabla_marg, current_channels, all_channels='ABC'):
+    tabla_marg['state'] = tabla_marg.index
     table_prob = tabla_marg
     new_channels = all_channels
-    print('all_channels', all_channels)
-    print('current_channels', current_channels)
 
     for channel in all_channels:
         if channel not in current_channels:
-            print(channel)
+            #print(channel)
             table_prob, new_channels = marginalize_table(
                 table_prob, channel, new_channels)
+            
+    
+    table_prob = table_prob.reset_index().set_index('state')
 
     return table_prob
 
 
 def marginalize_table(table, channel, channels='ABC'):
-    print('marginalize_table')
-    print('table:', table)
-    print('channel:', channel)
-    print('channels:', channels)
-    df_group = table.groupby(group_index(
-        table.index, channel, channels)).mean()
+    position_element = channels.find(channel)
+    table['state'] = table['state'].apply(modify_state, element=position_element)
+    promd_table = table.groupby('state').mean()
+    promd_table = promd_table.reset_index()
     new_channels = change_channels(channel, channels)
 
-    print('new_channels:', new_channels)
-    print('df_group:', df_group)
-    return df_group, new_channels
-
-
-def group_index(indexes, channel, channels='ABC'):
-    element = channels.find(channel)
-    if element != -1:
-        return [modify_index(index, element) for index in indexes]
+    return promd_table, new_channels
     
-    return indexes
-    
-def modify_index(index, element):
-    return index[:element] + index[element + 1:]
+def modify_state(state, element):
+    state = list(state)
+    del state[element]
+
+    return ''.join(state)
 
 
 def change_channels(channel, channels='ABC'):
@@ -46,3 +41,51 @@ def change_channels(channel, channels='ABC'):
         return channels[:element] + channels[element + 1:]
 
     return channels
+
+# def get_marginalize_channel(tabla_marg, current_channels, all_channels='ABC'):
+#     # print('get_marginalize_channel')
+#     print('table:', tabla_marg)
+#     # print('current_channels:', current_channels)
+#     # print('all_channels:', all_channels)
+
+#     table_prob = tabla_marg
+#     new_channels = all_channels
+
+#     for channel in all_channels:
+#         if channel not in current_channels:
+#             table_prob, new_channels = marginalize_table(
+#                 table_prob, channel, new_channels)
+            
+#             print('new_channels:', new_channels)
+#             print('table_prob:', table_prob)
+#             print('chanel evaluado:', channel)
+#             print('------------------')
+
+#     return table_prob
+
+
+# def marginalize_table(table, channel, channels='ABC'):
+#     df_group = table.groupby(group_index(
+#         table.index, channel, channels)).mean()
+#     new_channels = change_channels(channel, channels)
+
+#     return df_group, new_channels
+
+
+# def group_index(indexes, channel, channels='ABC'):
+#     element = channels.find(channel)
+#     if element != -1:
+#         return [modify_index(index, element) for index in indexes]
+    
+#     return indexes
+    
+# def modify_index(index, element):
+#     return index[:element] + index[element + 1:]
+
+
+# def change_channels(channel, channels='ABC'):
+#     element = channels.find(channel)
+#     if element != -1:
+#         return channels[:element] + channels[element + 1:]
+
+#     return channels

@@ -106,7 +106,7 @@ def get_probability_tables_partition(process_data, probs_table, table_comb, orig
 
     key_comb = future_channels+'|'+current_channels
     print('---------------------')
-    print(key_comb)
+    print('Key Combo:', key_comb)
 
     if future_channels == '':
         result = get_future_empty(
@@ -228,10 +228,6 @@ def get_posicion_elements(channels_left, channels_right):
 
 
 def get_future_empty(original_prob, current_channels, original_channels, state_current_channels):
-    print('get_future_empty')
-    print(current_channels)
-    print(original_channels)
-    print(state_current_channels)
     maginalize_table = mg.get_marginalize_channel(
         original_prob, current_channels, original_channels)
     row_sum = maginalize_table.loc[state_current_channels].sum()
