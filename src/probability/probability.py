@@ -105,8 +105,6 @@ def get_probability_tables_partition(process_data, probs_table, table_comb, orig
     original_channels = process_data['original_channels']
 
     key_comb = future_channels+'|'+current_channels
-    print('---------------------')
-    print('Key Combo:', key_comb)
 
     if future_channels == '':
         result = get_future_empty(

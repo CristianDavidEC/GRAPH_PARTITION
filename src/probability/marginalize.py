@@ -1,10 +1,8 @@
 import pandas as pd
 
-import pandas as pd
-
 def get_marginalize_channel(tabla_marg, current_channels, all_channels='ABC'):
-    tabla_marg['state'] = tabla_marg.index
-    table_prob = tabla_marg
+    table_prob = tabla_marg.copy()
+    table_prob['state'] = tabla_marg.index
     new_channels = all_channels
 
     for channel in all_channels:
@@ -15,7 +13,11 @@ def get_marginalize_channel(tabla_marg, current_channels, all_channels='ABC'):
             
     
     table_prob = table_prob.reset_index().set_index('state')
-
+    table_prob.index.name = None
+    table_prob = table_prob.drop('index', axis=1)
+    if 'state' in table_prob.columns:
+        table_prob = table_prob.drop(columns='state', inplace=True)
+    
     return table_prob
 
 
@@ -43,11 +45,6 @@ def change_channels(channel, channels='ABC'):
     return channels
 
 # def get_marginalize_channel(tabla_marg, current_channels, all_channels='ABC'):
-#     # print('get_marginalize_channel')
-#     print('table:', tabla_marg)
-#     # print('current_channels:', current_channels)
-#     # print('all_channels:', all_channels)
-
 #     table_prob = tabla_marg
 #     new_channels = all_channels
 
@@ -56,11 +53,6 @@ def change_channels(channel, channels='ABC'):
 #             table_prob, new_channels = marginalize_table(
 #                 table_prob, channel, new_channels)
             
-#             print('new_channels:', new_channels)
-#             print('table_prob:', table_prob)
-#             print('chanel evaluado:', channel)
-#             print('------------------')
-
 #     return table_prob
 
 

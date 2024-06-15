@@ -1,8 +1,8 @@
 import pandas as pd
 
 def get_marginalize_channel(tabla_marg, current_channels, all_channels='ABC'):
-    tabla_marg['state'] = tabla_marg.index
     table_prob = tabla_marg
+    table_prob['state'] = tabla_marg.index
     new_channels = all_channels
 
     for channel in all_channels:
@@ -13,7 +13,9 @@ def get_marginalize_channel(tabla_marg, current_channels, all_channels='ABC'):
             
     
     table_prob = table_prob.reset_index().set_index('state')
-
+    table_prob.index.name = None
+    table_prob = table_prob.drop('index', axis=1)
+    
     return table_prob
 
 
@@ -55,25 +57,25 @@ def change_channels(channel, channels='ABC'):
 # result = get_marginalize_channel(df, 'A', 'ABC')
 
 
-# Ejemplo bueno !!!
-# data = {
-#     '000': [0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-#     '001': [0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0],
-#     '010': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-#     '011': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-#     '100': [0.5, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],
-#     '101': [0.0, 0.0, 1.0, 0.0, 0.5, 0.0, 0.0, 0.0],
-#     '110': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
-#     '111': [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
-# }
+#Ejemplo bueno !!!
+data = {
+    '000': [0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    '001': [0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0],
+    '010': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    '011': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    '100': [0.5, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],
+    '101': [0.0, 0.0, 1.0, 0.0, 0.5, 0.0, 0.0, 0.0],
+    '110': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+    '111': [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
+}
 
-# index = ['000', '001', '010', '011', '100', '101', '110', '111']
+index = ['000', '001', '010', '011', '100', '101', '110', '111']
 
-# df = pd.DataFrame(data, index=index)
+df = pd.DataFrame(data, index=index)
 
 
-# result = get_marginalize_channel(df, 'AC', 'ABC')
-# print(result)
+result = get_marginalize_channel(df, 'ABC', 'ABC')
+print(result)
 
 
 # # Ejemplo XX !!!
