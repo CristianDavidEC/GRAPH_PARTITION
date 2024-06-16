@@ -1,8 +1,11 @@
 from graph.graph import Graph
 import emd.emd_calculation as emd
 import graph.remove_edges as remove_edges
+import networkx as nx
 
 def find_best_partition(network: Graph, proccess_data, original_prob):
+    network.loss_value = 0
+    #network.removed_edges = []
     val_cup = calcule_cut_value(network)
     proccess_data['channels'] = proccess_data['current']
     proccess_data['val_cup'] = val_cup
@@ -14,8 +17,12 @@ def find_best_partition(network: Graph, proccess_data, original_prob):
     while not is_solution:
         graphs_sort = sorted(graphs_evaluated, key=lambda graph: (
             graph.loss_value, len(graph.removed_edges)), reverse=True)
+        
+        # print(graphs_sort)
+        # print(len(graphs_sort))
 
         for graph in graphs_sort:
+            # print(f'{vars(graph)} \n')
             if graph.evaluated:
                 continue
             edges_graph = graph.edges(data=True)
@@ -42,6 +49,8 @@ def find_best_partition(network: Graph, proccess_data, original_prob):
     print(graph_solition.removed_edges)
     print(vars(graph_solition))
 
+    return graph_solition
+
 
 def create_graphs_delete_edge(father_network: Graph, best_solutions: list, edges, proccess_data, original_prob):
     val_cup = proccess_data['val_cup']
@@ -53,9 +62,10 @@ def create_graphs_delete_edge(father_network: Graph, best_solutions: list, edges
         possible_emd = emd_graph + details['weight']
         if possible_emd < val_cup:
             new_graph = remove_edges.create_new_graph(father_network, (nodex, nodey))
+            new_graph.removed_edges.extend(father_network.removed_edges)
+            
             remove_edges.calcule_probability_dist(
                 new_graph, father_network.table_probability, proccess_data)
-
             new_emd = emd.calcule_emd(
                 new_graph, proccess_data['state'], original_prob)
 
