@@ -6,7 +6,6 @@ import emd.emd_calculation as emd
 
 
 def calculate_partition(process_data):
-    start = t.time()
     combinations_current = find_combinations(process_data['current'])
     combinations_future = find_combinations(process_data['future'])
 
@@ -15,10 +14,6 @@ def calculate_partition(process_data):
 
     result_partition = calcule_probability_partition(
         combinations_current, combinations_future, dic_combinations, process_data)
-    
-    print(result_partition)
-
-    print(t.time() - start)
 
     return result_partition
     

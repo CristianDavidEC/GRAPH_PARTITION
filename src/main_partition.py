@@ -6,18 +6,23 @@ import probability.utils as utils
 import partition.partition as partition
 from graph.graph import Graph
 from graph.remove_edges import remove_edges
+import time as t
 
 
 def main_partition(process_data):
     original_graph = Graph().create_graph(process_data['current'], process_data['future'])
 
+    init = t.time()
     partition_found = partition.calculate_partition(process_data)
     graph_found = get_graph(partition_found)
     graph_found.loss_value = partition_found['value']
 
+    finish = t.time()
     print('--------- Results ---------')
+    print(f'Value: {partition_found["value"]}')
+    print(f'Partition: {partition_found["partition"]}')
     print(vars(graph_found))
-
+    print(f'Time: {finish - init}')
 
     utils.graph_result(original_graph, graph_found)
 
@@ -41,19 +46,5 @@ def create_graph(partition):
     graph = Graph().create_graph(current, future)
 
     return graph
-
-
-if __name__ == '__main__':
-    data_to_process = {
-        #'file': 'src/data/tablex5.json',
-        'file': 'data/tablex5.json',
-        'future': 'ABC',
-        'current': 'AC',
-        'state': '10',
-        'channels': 'ABCDE',
-        #'method': 'partition' # partition | delete_edges | clear_zeros | heuristicas
-    }
-
-    main_partition(data_to_process)
 
 
