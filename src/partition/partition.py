@@ -19,20 +19,19 @@ def calculate_partition(process_data):
     print(result_partition)
 
     print(t.time() - start)
+
+    return result_partition
     
 
 def calcule_probability_partition(currents, futures, dic_combinations, process_data):
     probabilities = utils.create_probability_distributions(
         process_data['file'])
-
     original_prob = prob.original_probability_partition(
         probabilities, process_data['current'], process_data['future'], process_data['channels'])
 
     channels_current = process_data['current']
     channels_future = process_data['future']
-
     process_data['original_channels'] = channels_current
-
     best_partition = {
         'partition': None,
         'value': float('inf')
@@ -44,14 +43,11 @@ def calcule_probability_partition(currents, futures, dic_combinations, process_d
         for future in futures:
             parts = get_partition_exp(
                 current, future, channels_current, channels_future)
-
             part_left, part_right = parts
-
             partition_left_tab = calculate_parts(
                 part_left, dic_combinations, probabilities, process_data, original_prob)
             partition_right_tab = calculate_parts(
                 part_right, dic_combinations, probabilities, process_data, original_prob)
-
             result_emd = calcule_emd_partitions(
                 partition_left_tab, partition_right_tab, original_prob, parts, process_data['state'])
 
@@ -75,7 +71,6 @@ def calculate_parts(partition, dic_combinations, probabilities, process_data, or
 
     if dic_combinations[key_comb]:
         table_prob_partition = dic_combinations[key_comb]
-
     else:
         if furure == '' and current == '':
             dic_combinations[key_comb] = -1
@@ -165,7 +160,6 @@ def find_combinations(s):
             path.append(s[i])
             backtrack(i + 1, path, length)
             path.pop()
-
     combinations = []
     for length in range(1, len(s) + 1):
         backtrack(0, [], length)

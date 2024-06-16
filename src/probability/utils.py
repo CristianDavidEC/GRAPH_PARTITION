@@ -1,6 +1,7 @@
 import pandas as pd
 import json
 import matplotlib.pyplot as plt
+import networkx as nx
 
 def create_sub_table(data_frame, colum_extract):
     if colum_extract == '':
@@ -29,11 +30,18 @@ def get_type_nodes(node1, node2):
     
     return node2, node1
 
+def graph_result(original_graph, neteork_found):
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8))
+    nx.draw(original_graph, with_labels=True, ax=ax1)
+    ax1.set_title('Original Network')
 
-def graph_probability(table_prob, process_data):
-    table_prob.plot(x='state', y='probability', kind='bar')
-    plt.title(f'State - Probability {process_data['future']} | {process_data['current']} = {process_data['state']}')
-    plt.xlabel('State')
-    plt.ylabel('Probability')
-    plt.ylim(0, 1)
+    pos = nx.spring_layout(neteork_found)
+    edge_labels = nx.get_edge_attributes(G=neteork_found, name='weight')
+    edge_labels = {k: f"{v:.1f}" for k, v in edge_labels.items()}
+    nx.draw(neteork_found, pos, with_labels=True, ax=ax2)
+    nx.draw_networkx_edge_labels(neteork_found, pos, edge_labels=edge_labels, font_size=8, ax=ax2)
+    ax2.set_title('Network Best Partition')
+    text = 'EMD: ' + str(neteork_found.loss_value)
+    ax2.text(0, 0, text, verticalalignment='center', transform=ax2.transAxes)
+
     plt.show()
