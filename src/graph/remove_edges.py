@@ -26,6 +26,7 @@ def remove_edges(network: Graph, probabilities, proccess_data):
         graph_processor.loss_value = emd_value
 
         original_graph[removed_edge[0]][removed_edge[1]]['weight'] = emd_value
+        network[removed_edge[0]][removed_edge[1]]['weight'] = emd_value
 
         if graph_processor.loss_value == 0:
             network.remove_edge(*removed_edge)
@@ -33,23 +34,13 @@ def remove_edges(network: Graph, probabilities, proccess_data):
 
         if not nx.is_connected(network):
             network.loss_value = emd_value
-            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
-
-            nx.draw(original_graph, with_labels=True, ax=ax1)
-            nx.draw(network, with_labels=True, ax=ax2)
-
-            plt.show()
-
-            return
+            
+            return network
 
     delete_zeros_graph(original_graph, probabilities, proccess_data)
-    # print(vars(original_graph))
-    # print(original_graph.edges(data=True))
-
     edge_found = partition.find_best_partition(original_graph, proccess_data, original_prob)
 
-    nx.draw(edge_found, with_labels=True)
-    plt.show()
+    return edge_found
 
 
 def delete_zeros_graph(network: Graph, probabilities, proccess_data):

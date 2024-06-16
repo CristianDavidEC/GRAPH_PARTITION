@@ -5,7 +5,6 @@ import networkx as nx
 
 def find_best_partition(network: Graph, proccess_data, original_prob):
     network.loss_value = 0
-    #network.removed_edges = []
     val_cup = calcule_cut_value(network)
     proccess_data['channels'] = proccess_data['current']
     proccess_data['val_cup'] = val_cup
@@ -17,12 +16,8 @@ def find_best_partition(network: Graph, proccess_data, original_prob):
     while not is_solution:
         graphs_sort = sorted(graphs_evaluated, key=lambda graph: (
             graph.loss_value, len(graph.removed_edges)), reverse=True)
-        
-        # print(graphs_sort)
-        # print(len(graphs_sort))
 
         for graph in graphs_sort:
-            # print(f'{vars(graph)} \n')
             if graph.evaluated:
                 continue
             edges_graph = graph.edges(data=True)
@@ -43,11 +38,6 @@ def find_best_partition(network: Graph, proccess_data, original_prob):
                     graph_solition = graph
 
             is_solution = True
-    
-    print(graph_solition.edges(data=True))
-    print(graph_solition.loss_value)
-    print(graph_solition.removed_edges)
-    print(vars(graph_solition))
 
     return graph_solition
 
