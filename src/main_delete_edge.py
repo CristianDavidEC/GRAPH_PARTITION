@@ -20,20 +20,14 @@ def main(process_data):
     remove_edges(network_graph, probability_distributions, process_data)
     
 
-def graph_probability(table_prob, process_data):
-    table_prob.plot(x='state', y='probability', kind='bar')
-    plt.title(f'State - Probability {process_data['future']} | {process_data['current']} = {process_data['state']}')
-    plt.xlabel('State')
-    plt.ylabel('Probability')
-    plt.ylim(0, 1)
-    plt.show()
 
 if __name__ == '__main__':
     data_to_process = {
+        #'file': 'src/data/tablex5.json',
         'file': 'data/tablex5.json',
-        'future': 'ABCD',
-        'current': 'ABCD',
-        'state': '1000',
+        'future': 'BC',
+        'current': 'ABC',
+        'state': '100',
         'channels': 'ABCDE',
         #'method': 'partition' # partition | delete_edges | clear_zeros | heuristicas
     }

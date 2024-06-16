@@ -7,6 +7,7 @@ class Graph(nx.Graph):
         self.removed_edges = [] 
         self.table_probability = None
         self.loss_value = -1
+        self.evaluated = False
 
 
     def create_graph(self, current_nodes: str, future_nodes: str):
