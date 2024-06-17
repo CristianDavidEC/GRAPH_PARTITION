@@ -1,5 +1,4 @@
-from main_partition import main_partition
-from main_delete_edge import main_delete_edge
+from execute import execute
 
 if __name__ == '__main__':
     data_to_process = {
@@ -11,8 +10,4 @@ if __name__ == '__main__':
         'method': 'delete_edges' # partition | delete_edges |
     }
 
-    if data_to_process['method'] == 'partition':
-        main_partition(data_to_process)
-    
-    if data_to_process['method'] == 'delete_edges':
-        main_delete_edge(data_to_process)
+    execute(data_to_process)
