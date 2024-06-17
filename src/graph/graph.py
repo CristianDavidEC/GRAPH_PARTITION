@@ -1,6 +1,8 @@
 import networkx as nx
 from itertools import product
 
+# Clase grafo hereda de networkx para aprovechar sus metodos
+# 
 class Graph(nx.Graph):
     def __init__(self):
         super().__init__()
@@ -38,6 +40,8 @@ class Graph(nx.Graph):
     def add_edges_to_graph(self, edges: list):
         self.add_edges_from(edges)
 
+    # Apartir de las aristas actuales, optiene una expresion de probabilidad
+    # que puede comprender los metodos de marginalizacion
     def conver_edges_to_probability_expression(self):
         exp_edges_prob = {}
 

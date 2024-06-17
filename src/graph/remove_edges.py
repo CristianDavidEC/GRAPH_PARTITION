@@ -9,7 +9,9 @@ import emd.emd_calculation as emd
 import matplotlib.pyplot as plt
 import graph.find_partition as partition
 
-
+# Evalua cada uno de los edges del grafo, eliminandolo y calculando su nueva probabilidad y valor de perdida.
+# si encuentra un 0, elimina el edge, si eliminando los edge el grafo deja de ser conexo, retorna la particion con perdida 0
+# de lo contrario calcula la perdida del grafo eliminando combos de aristas.
 def remove_edges(network: Graph, probabilities, proccess_data):
     original_prob = prob.get_original_probability(
         probabilities, proccess_data['current'], proccess_data['future'], proccess_data['channels'])
@@ -34,15 +36,18 @@ def remove_edges(network: Graph, probabilities, proccess_data):
 
         if not nx.is_connected(network):
             network.loss_value = emd_value
-            
+
             return network
 
     delete_zeros_graph(original_graph, probabilities, proccess_data)
-    edge_found = partition.find_best_partition(original_graph, proccess_data, original_prob)
+    edge_found = partition.find_best_partition(
+        original_graph, proccess_data, original_prob)
 
     return edge_found
 
 
+# Una vez calculado el valor de todas las aristas y no encontrar una particion
+# con perdida 0, se elimina los edge de perdida 0 y crea un nuevo grafo con los restantes y sus respectivas perdidas
 def delete_zeros_graph(network: Graph, probabilities, proccess_data):
     original_prob = prob.get_original_probability(
         probabilities, proccess_data['current'], proccess_data['future'], proccess_data['channels'])
@@ -61,9 +66,8 @@ def delete_zeros_graph(network: Graph, probabilities, proccess_data):
         "'", ""): value for key, value in network.table_probability.items()}
     network.table_probability = modify_tables
 
-# Crea un nuevo grafo con el edge removido
 
-
+# Crea un nuevo grafo removiendo el borde
 def create_new_graph(network: Graph, removed_edge):
     original_graph = network.copy()
     original_graph.remove_edge(*removed_edge)
@@ -96,6 +100,8 @@ def calcule_probability_dist(graph: Graph, probabilities, proccess_data):
     for edge in graph.removed_edges:
         node1, node2 = edge
         future, current = get_type_nodes(node1, node2)
+
+        # Calcula la probabilidad para el caso futuro vacio | current
         if future not in tables_result:
             table, prob_exp = get_table_future_empty(
                 (future, current), probabilities, proccess_data)
@@ -107,6 +113,7 @@ def calcule_probability_dist(graph: Graph, probabilities, proccess_data):
             complete_table_prob(tables_result, edge,
                                 prob_expression, size_current)
 
+        # Calcula la probabilidad para el caso futuro | current vacio
         if size_current == 1:
             node1, node2 = edge
             future, current = get_type_nodes(node1, node2)
@@ -119,6 +126,8 @@ def calcule_probability_dist(graph: Graph, probabilities, proccess_data):
     graph.table_probability = merge_results
 
 
+# Calcula la tabla de probabilidad cuando la expresion de probabilidad no encuentra
+# una expresion para el nodo eliminado, este caso equivale al futuro vacio | current
 def get_table_future_empty(node_delete, probabilities, proccess_data):
     future, current = node_delete
     currents = proccess_data['current'].replace(current, "")
