@@ -5,6 +5,7 @@ import time as t
 import emd.emd_calculation as emd
 
 
+# Inicializa la tabla de combinaciones y calcula las combinaciones de current y future
 def calculate_partition(process_data):
     combinations_current = find_combinations(process_data['current'])
     combinations_future = find_combinations(process_data['future'])
@@ -18,6 +19,13 @@ def calculate_partition(process_data):
     return result_partition
     
 
+# Calcula la mejor particion posible de los elementos, dadas las combinaciones de current y future
+# combina la union de los dos en una particion y la otra particion es el complemento de estos dos
+# mientras se van realizando los calculos el valor de las tablas encontradas se almacena en una tabla mara reusarlas
+# @ currents: combinaciones de current
+# @ futures: combinaciones de future
+# @ dic_combinations: diccionario con las tablas de probabilidad
+# @ process_data: diccionario con los datos del proceso
 def calcule_probability_partition(currents, futures, dic_combinations, process_data):
     probabilities = utils.create_probability_distributions(
         process_data['file'])
@@ -46,6 +54,7 @@ def calcule_probability_partition(currents, futures, dic_combinations, process_d
             result_emd = calcule_emd_partitions(
                 partition_left_tab, partition_right_tab, original_prob, parts, process_data['state'])
 
+            # Particion de perdida 0, mejor particion
             if result_emd == 0:
                 best_partition['partition'] = parts
                 best_partition['value'] = result_emd
@@ -58,7 +67,8 @@ def calcule_probability_partition(currents, futures, dic_combinations, process_d
 
     return best_partition
 
-
+# Calcula las tablas y probabilidad de cada una de las subpartes que componen la particion
+# @ return: tabla de probabilidad de la paricion
 def calculate_parts(partition, dic_combinations, probabilities, process_data, original_prob):
     furure, current = partition
     table_prob_partition = None
@@ -89,7 +99,7 @@ def calculate_parts(partition, dic_combinations, probabilities, process_data, or
 
     return prob_result
 
-
+# Calcula la perdida de la particion
 def calcule_emd_partitions(partition_left, partition_right, original_prob, parts_exp, state):
     if partition_left is None or partition_right is None:
         return 10000
@@ -120,11 +130,7 @@ def is_valid_partition(part_left, part_right):
 
     return True
 
-
-# # Special case to keys "" | "" x "ABC" | "ABC"
-# def add_special_case(channels_current, channels_future, table_comb):
-#     table_comb.loc[channels_current, channels_future] = 0
-#     table_comb.loc["", ""] = 0
+# A partir del current y future calcula su particion complementaria	
 def get_partition_exp(current, future, channels_current, channels_future):
     current_comple = missing_elements(current, channels_current)
     future_comple = missing_elements(future, channels_future)
@@ -145,7 +151,7 @@ def missing_elements(input, original):
     return missing
 
 
-# Get the combination to channels
+# Dada la lista de canales calcula las combinaciones posibles de sus elementos
 def find_combinations(s):
     def backtrack(start, path, length):
         if len(path) == length:
@@ -163,6 +169,7 @@ def find_combinations(s):
     return combinations
 
 
+# Tabla auxiliar para almacenar las tablas de probabilidad calculadas previamente
 def create_table_combination(future, current):
     combinations = [str(x) + '|' + str(y) for x in future for y in current]
 
