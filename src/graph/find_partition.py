@@ -3,6 +3,14 @@ import emd.emd_calculation as emd
 import graph.remove_edges as remove_edges
 import networkx as nx
 
+
+# Busca una particion de mejor perdida, eliminando grupos de aristas hasta encontrar
+# la que su valor de perdida sea menor.
+# @ param network: grafo con las aristas 0 eliminadas
+# @ return: grafo con la mejor particion
+# Mientras no hay solucion recore lista de grafos a evaluar
+# Estos se ordenan por perdida y aristas eliminadas
+# Una vez evaluados, revisa su hay solucion y retorna la mejor encontrada
 def find_best_partition(network: Graph, proccess_data, original_prob):
     network.loss_value = 0
     val_cup = calcule_cut_value(network)
@@ -41,7 +49,10 @@ def find_best_partition(network: Graph, proccess_data, original_prob):
 
     return graph_solition
 
-
+# Para cada grafo a evaluar, crea un nuevo grafo con la arista eliminada que este dentro de la cota
+# Calcula su nueva probabilidad y valor de perdida, si el grafo deja de ser conexto
+# es un grafo solucion y lo almacena en best_solutions, ademas cambia la cota de corte
+# de ser conexo agrega el grafo a grafos por evaluar
 def create_graphs_delete_edge(father_network: Graph, best_solutions: list, edges, proccess_data, original_prob):
     val_cup = proccess_data['val_cup']
     new_graphs = []
@@ -75,6 +86,7 @@ def create_graphs_delete_edge(father_network: Graph, best_solutions: list, edges
     return new_graphs
 
 
+# Cota inicial de corte
 def calcule_cut_value(network: Graph):
     sum_val_emd = 0
 
