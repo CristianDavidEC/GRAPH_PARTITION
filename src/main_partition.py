@@ -21,6 +21,7 @@ def main_partition(process_data):
     print('--------- Results ---------')
     print(f'Value: {partition_found["value"]}')
     print(f'Partition: {partition_found["partition"]}')
+    print(f'Tensor Product:\n {partition_found["tensor_product"]}')
     print(vars(graph_found))
     print(f'Time: {finish - init}')
 

@@ -16,7 +16,6 @@ def get_marginalize_channel(tabla_marg, current_channels, all_channels='ABC'):
             table_prob, new_channels = marginalize_table(
                 table_prob, channel, new_channels)
             
-    
     table_prob = table_prob.reset_index().set_index('state')
     table_prob.index.name = None
     table_prob = table_prob.drop('index', axis=1)

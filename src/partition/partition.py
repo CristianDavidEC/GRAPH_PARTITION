@@ -51,19 +51,21 @@ def calcule_probability_partition(currents, futures, dic_combinations, process_d
                 part_left, dic_combinations, probabilities, process_data, original_prob)
             partition_right_tab = calculate_parts(
                 part_right, dic_combinations, probabilities, process_data, original_prob)
-            result_emd = calcule_emd_partitions(
+            result_emd, tensor_product = calcule_emd_partitions(
                 partition_left_tab, partition_right_tab, original_prob, parts, process_data['state'])
-
+                
             # Particion de perdida 0, mejor particion
             if result_emd == 0:
                 best_partition['partition'] = parts
                 best_partition['value'] = result_emd
+                best_partition['tensor_product'] = tensor_product
 
                 return best_partition
 
             if result_emd < best_partition['value']:
                 best_partition['partition'] = parts
                 best_partition['value'] = result_emd
+                best_partition['tensor_product'] = tensor_product
 
     return best_partition
 
@@ -102,14 +104,14 @@ def calculate_parts(partition, dic_combinations, probabilities, process_data, or
 # Calcula la perdida de la particion
 def calcule_emd_partitions(partition_left, partition_right, original_prob, parts_exp, state):
     if partition_left is None or partition_right is None:
-        return 10000
+        return 10000, None
     
     tensor_product = prob.tensor_product_partition(
         partition_left, partition_right, parts_exp)
-
+    
     value_emd = emd.emd_partition(tensor_product, original_prob, state)
 
-    return value_emd
+    return value_emd, tensor_product
 
 
 def get_value_state(current, all_current, state):
