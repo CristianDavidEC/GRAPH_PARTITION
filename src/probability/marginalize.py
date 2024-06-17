@@ -1,5 +1,11 @@
 import pandas as pd
 
+
+### Dada una tabla de probabilidad y los canales que quedan luego de eliminar uno de ellos
+### calcula la marginalizacion de la tabla.
+### @ param table_prob: tabla de probabilidad
+### @ param current_channels: canales sobrantes
+### @ param all_channels: todos los canales de la tabla
 def get_marginalize_channel(tabla_marg, current_channels, all_channels='ABC'):
     table_prob = tabla_marg.copy()
     table_prob['state'] = tabla_marg.index
@@ -20,6 +26,8 @@ def get_marginalize_channel(tabla_marg, current_channels, all_channels='ABC'):
     return table_prob
 
 
+### Elimina el estado del canal en la posicion del mismo, luego agrupa la tabla
+### en los nuevos estados resultantes y promedia sus valores.
 def marginalize_table(table, channel, channels='ABC'):
     position_element = channels.find(channel)
     table['state'] = table['state'].apply(modify_state, element=position_element)
@@ -36,6 +44,7 @@ def modify_state(state, element):
     return ''.join(state)
 
 
+### Retorna los canales sobrantes de la marginalizacion
 def change_channels(channel, channels='ABC'):
     element = channels.find(channel)
     if element != -1:

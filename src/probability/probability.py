@@ -6,9 +6,9 @@ import probability.utils as utils
 from concurrent.futures import ThreadPoolExecutor
 
 
-# The probability of
-# P(ABC future | ABC current) = P(A future | ABC current) * P(B future | ABC current) * P(C future | ABC current)
-# * -> Tensor product
+# La probabilidad de cada uno de los elementos
+# P(ABC futuro | ABC actual) = P(A futuro | ABC actual) * P(B futuro | ABC actual) * P(C futuro | ABC actual)
+# * -> Producto tensorial
 def calculate_joint_probability(probability_tables):
     prob_array = [probability_tables[key] for key in probability_tables]
     result = prob_array[0]
@@ -24,15 +24,16 @@ def calculate_joint_probability(probability_tables):
     return df_final_tb
 
 
+# Indices de la combiancion de elementos durante el producto tensor
 def create_index_table(num_elements):
     combinations = list(itertools.product([0, 1], repeat=num_elements))
     combinations_string = [''.join(map(str, comb)) for comb in combinations]
 
     return combinations_string
 
-# Get the marginalize table for the future channels, with your probabilities in a state channel
 
-
+# Obtiene la tabla marginalize para los canales futuros, con sus probabilidades en un canal de estado
+# NO USADO
 def get_probability_tables(process_data, probs_table):
     future_channels = process_data['future']
     current_channels = process_data['current']
@@ -68,6 +69,9 @@ def get_prob_empty_current(table):
     return table.mean(axis=0).values
 
 
+# Caclula la mattice de probabilidad de current * future, siendo esta la tabla base
+# A comparar con las tablas marginalizadas
+
 def get_original_probability(probs_table, current_channels, future_channels, all_channels):
     marg_table = {}
 
@@ -96,6 +100,14 @@ def get_original_probability(probs_table, current_channels, future_channels, all
     return full_matriz
 
 
+# Obtiene la tabla marginalize para los canales futuros, con sus probabilidades en un canal de estado
+# almacena los resultados previos calculados para que sean reutilizados en los calculos
+# @process_data: diccionario con los canales del grafo y el estado actual
+# @probs_table: diccionario con las tablas de probabilidad
+# Dados los canales futuros a operar, marginaliza la tabla en sus respectivos canales current
+# Extrae el valor marginalizado de la tabla en el estado dado
+# @return: diccionario de canales actuales y si probabilidad en el estado dado
+# @return: diccionario con los canales futuros y su valor de probabilidad en el estado dado
 def get_probability_tables_partition(process_data, probs_table, table_comb, original_prob=None):
     future_channels = process_data['future']
     current_channels = process_data['current']
@@ -144,6 +156,7 @@ def get_probability_tables_partition(process_data, probs_table, table_comb, orig
     return table_comb[key_comb]
 
 
+# Caclula la matrix de probabilidad de current * future, para la particion.
 def original_probability_partition(probs_table, current_channels, future_channels, all_channels):
     marg_table = {}
     for key, table in probs_table.items():
@@ -170,7 +183,9 @@ def original_probability_partition(probs_table, current_channels, future_channel
 
     return full_matriz
 
-
+# calcula el producto tensor, de la matriz de las dos particiones
+# el proceso de calcula de manera paralera, para cada uno de los componentes de la matriz
+# asi como el indice resultante de su operacion.
 def tensor_product_partition(partition_left, partition_right, parts_exp):
     part_left, part_right = parts_exp
     positions_channels = get_posicion_elements(part_left[0], part_right[0])
@@ -192,7 +207,7 @@ def tensor_product_partition(partition_left, partition_right, parts_exp):
 
     return df_results
 
-
+# Calculo del producto tensor uno a uno
 def compute_tensor_product(part_left, part_right, parts_exp, positions):
     tensor_product = part_left['probability'] * part_right['probability']
     index_product = get_index_product(
@@ -202,10 +217,11 @@ def compute_tensor_product(part_left, part_right, parts_exp, positions):
 
     return result
 
-
+# Retorna el indice resultante de la operacion tensor entre los dos elementos
 def get_index_product(state_left, state_right, positions, parts_exp):
     part_let_future = parts_exp[0]
-    if part_let_future == "": return state_right
+    if part_let_future == "":
+        return state_right
 
     result_string = list(state_left)
 
@@ -225,6 +241,8 @@ def get_posicion_elements(channels_left, channels_right):
     return positions_channels
 
 
+# Calcula la probabilidad para futuro vacio, marginalizando la tabla original 
+# y calculando la suma de las fila en el estado dado
 def get_future_empty(original_prob, current_channels, original_channels, state_current_channels):
     maginalize_table = mg.get_marginalize_channel(
         original_prob, current_channels, original_channels)

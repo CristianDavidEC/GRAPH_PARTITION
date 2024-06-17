@@ -6,7 +6,9 @@ from pyemd import emd
 import numpy as np
 import pandas as pd
 
-
+### Optiene el valor de EMD entre las dos distribuciones de probabilidad
+### la libreria pyemd, utiliza las dos distribuciones de probabilidad
+### y una matriz de distancia hamming de los estados de cada distribucion
 def calcule_emd(graph: Graph, state, original_probability):
     modofy_prob = get_probability_in_state(graph, state)
     haming_matrix = hamming_distance_matrix(modofy_prob['state'].values)
@@ -23,6 +25,8 @@ def calcule_emd(graph: Graph, state, original_probability):
     return emd_value
 
 
+### Calcula la probabilidad de un estado, en cada una de las distribuciones de probabilidad
+### se une en una sola distribucion mediante el producto tensor
 def get_probability_in_state(graph: Graph, state):
     table_probability = graph.table_probability
     prob_state = {}
@@ -38,7 +42,8 @@ def get_probability_in_state(graph: Graph, state):
     return probabiliry_result
 
 
-### Generate matrix hamming to
+### Calcula la matrix de distancia hamming a partir de una matris de 
+### estados dada.
 def hamming_distance_matrix(states):
     state = list(map(lambda x: list(map(int, x)), states))
     haming_matrix = cdist(state, state, 'hamming') * len(state[0])
@@ -46,6 +51,7 @@ def hamming_distance_matrix(states):
     return haming_matrix
 
 
+### Calcula la distacia de emd entre dos distribuciones de probabilidad para el metodo de particionamiento.
 def emd_partition(probability_table, original_probability, state):
     list_index = list(original_probability.columns)
     order_table = sorter_dataframe(probability_table, list_index)
