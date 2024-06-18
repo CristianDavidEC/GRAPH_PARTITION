@@ -23,7 +23,12 @@ def main_delete_edge(process_data):
     print(f'Loss value: {neteork_found.loss_value}')
     print(f'Removed edges: {neteork_found.removed_edges}')
     print(f'Edges Result: {neteork_found.edges(data=True)}')
-    print(f'Time: {finish - init}')
+    print(f'Components: {list(nx.connected_components(neteork_found))}')
+    print(f'Time: {finish - init} \n\n')
+
+    print(f'Probability distributions: {neteork_found.table_probability}')
+
+
 
     utils.graph_result(original_graph, neteork_found)
 
