@@ -8,6 +8,7 @@ import probability.probability as prob
 import emd.emd_calculation as emd
 import matplotlib.pyplot as plt
 import graph.find_partition as partition
+import probability.utils as utils
 
 # Evalua cada uno de los edges del grafo, eliminandolo y calculando su nueva probabilidad y valor de perdida.
 # si encuentra un 0, elimina el edge, si eliminando los edge el grafo deja de ser conexo, retorna la particion con perdida 0
@@ -40,6 +41,13 @@ def remove_edges(network: Graph, probabilities, proccess_data):
             return network
 
     delete_zeros_graph(original_graph, probabilities, proccess_data)
+    print('--------- Grapho sin edges 0 ---------')
+    print(f'Graph: {vars(original_graph)}')
+    print(f'Removed edges: {original_graph.removed_edges}')
+    print(f'Edges Result: {original_graph.edges(data=True)}')
+    print(f'Prob Table: {original_graph.table_probability} \n\n')
+    utils.grapho(original_graph)
+
     edge_found = partition.find_best_partition(
         original_graph, proccess_data, original_prob)
 

@@ -45,3 +45,12 @@ def graph_result(original_graph, neteork_found):
     ax2.text(0, 0, text, verticalalignment='center', transform=ax2.transAxes)
 
     plt.show()
+
+
+def grapho(graph):
+    pos = nx.spring_layout(graph)
+    edge_labels = nx.get_edge_attributes(G=graph, name='weight')
+    edge_labels = {k: f"{v:.4f}" for k, v in edge_labels.items()}
+    nx.draw(graph, pos, with_labels=True)
+    nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_labels, font_size=8)
+    plt.show()
