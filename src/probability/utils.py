@@ -37,7 +37,7 @@ def graph_result(original_graph, neteork_found):
 
     pos = nx.spring_layout(neteork_found)
     edge_labels = nx.get_edge_attributes(G=neteork_found, name='weight')
-    edge_labels = {k: f"{v:.1f}" for k, v in edge_labels.items()}
+    edge_labels = {k: f"{v:.3f}" for k, v in edge_labels.items()}
     nx.draw(neteork_found, pos, with_labels=True, ax=ax2)
     nx.draw_networkx_edge_labels(neteork_found, pos, edge_labels=edge_labels, font_size=8, ax=ax2)
     ax2.set_title('Network Best Partition')

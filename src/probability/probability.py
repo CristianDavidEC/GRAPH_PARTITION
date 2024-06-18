@@ -71,7 +71,6 @@ def get_prob_empty_current(table):
 
 # Caclula la mattice de probabilidad de current * future, siendo esta la tabla base
 # A comparar con las tablas marginalizadas
-
 def get_original_probability(probs_table, current_channels, future_channels, all_channels):
     marg_table = {}
 

@@ -58,7 +58,7 @@ def delete_zeros_graph(network: Graph, probabilities, proccess_data):
     for node1, node2, details_edge in graph_processor.edges(data=True):
         if details_edge['weight'] == 0:
             network.remove_edge(node1, node2)
-            network.removed_edges.append((node1, node2))
+            network.removed_edges.append((node1, node2, details_edge['weight']))
             calcule_probability_dist(
                 network, probabilities, proccess_data)
 
@@ -69,8 +69,9 @@ def delete_zeros_graph(network: Graph, probabilities, proccess_data):
 
 # Crea un nuevo grafo removiendo el borde
 def create_new_graph(network: Graph, removed_edge):
+    node1, node2, *reset = removed_edge
     original_graph = network.copy()
-    original_graph.remove_edge(*removed_edge)
+    original_graph.remove_edge(node1, node2)
 
     graph_processor = Graph()
     graph_processor.add_edges_to_graph(original_graph.edges(data=True))
@@ -98,7 +99,7 @@ def calcule_probability_dist(graph: Graph, probabilities, proccess_data):
         tables_result[future] = tablet_marginalize
 
     for edge in graph.removed_edges:
-        node1, node2 = edge
+        node1, node2, *reset = edge
         future, current = get_type_nodes(node1, node2)
 
         # Calcula la probabilidad para el caso futuro vacio | current
@@ -148,7 +149,7 @@ def get_table_future_empty(node_delete, probabilities, proccess_data):
 # @ param node_delete: tupla con los nodos a eliminar
 # @ param probability_exp: diccionario con las expresiones de probabilidad, del grafo sin los nodos eliminados
 def complete_table_prob(probabilities, node_delete, probability_exp, size_current=0):
-    node1, node2 = node_delete
+    node1, node2, *reset = node_delete
     future, current = get_type_nodes(node1, node2)
 
     if size_current == 1:

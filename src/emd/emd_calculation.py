@@ -22,7 +22,7 @@ def calcule_emd(graph: Graph, state, original_probability):
 
     emd_value = emd(list_modofy_prob, list_original_prob, haming_matrix)
 
-    return emd_value
+    return round(emd_value, 3)
 
 
 ### Calcula la probabilidad de un estado, en cada una de las distribuciones de probabilidad

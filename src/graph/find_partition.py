@@ -2,6 +2,7 @@ from graph.graph import Graph
 import emd.emd_calculation as emd
 import graph.remove_edges as remove_edges
 import networkx as nx
+import probability.utils as utils
 
 
 # Busca una particion de mejor perdida, eliminando grupos de aristas hasta encontrar
@@ -13,21 +14,22 @@ import networkx as nx
 # Una vez evaluados, revisa su hay solucion y retorna la mejor encontrada
 def find_best_partition(network: Graph, proccess_data, original_prob):
     network.loss_value = 0
-    val_cup = calcule_cut_value(network)
+    val_cup = calcule_cut_value(network, len(proccess_data['current']))
     proccess_data['channels'] = proccess_data['current']
     proccess_data['val_cup'] = val_cup
     best_solutions = []
     graphs_evaluated = [network]
     graph_solition = None
 
-    is_solution = False
-    while not is_solution:
+    #is_solution = False
+    while len (graphs_evaluated) > 0:
+        graphs_evaluated = [
+            obj for obj in graphs_evaluated if not obj.evaluated]
+
         graphs_sort = sorted(graphs_evaluated, key=lambda graph: (
-            graph.loss_value, len(graph.removed_edges)), reverse=True)
+            graph.loss_value, len(graph.removed_edges)))
 
         for graph in graphs_sort:
-            if graph.evaluated:
-                continue
             edges_graph = graph.edges(data=True)
             sort_edges = sorted(edges_graph, key=lambda x: x[2]['weight'])
 
@@ -36,7 +38,7 @@ def find_best_partition(network: Graph, proccess_data, original_prob):
             graph.evaluated = True
 
             graphs_evaluated.extend(new_graphs_deletes_edge)
-        
+
         if len(best_solutions) > 0:
             best_value = float('inf')
             for graph in best_solutions:
@@ -45,7 +47,7 @@ def find_best_partition(network: Graph, proccess_data, original_prob):
                     best_value = emd_value
                     graph_solition = graph
 
-            is_solution = True
+            #is_solution = True
 
     return graph_solition
 
@@ -60,15 +62,24 @@ def create_graphs_delete_edge(father_network: Graph, best_solutions: list, edges
 
     for edge in edges:
         nodex, nodey, details = edge
-        possible_emd = emd_graph + details['weight']
-        if possible_emd < val_cup:
-            new_graph = remove_edges.create_new_graph(father_network, (nodex, nodey))
+        base_value, max_value = calcule_posible_emd(
+            father_network.removed_edges, edge, emd_graph)
+
+        if base_value < proccess_data['val_cup']:
+            new_graph = remove_edges.create_new_graph(father_network, edge)
             new_graph.removed_edges.extend(father_network.removed_edges)
-            
+
             remove_edges.calcule_probability_dist(
                 new_graph, father_network.table_probability, proccess_data)
             new_emd = emd.calcule_emd(
                 new_graph, proccess_data['state'], original_prob)
+            print(f'Edge: {edge} - Value: {base_value}')
+            print(f'Base emd: {base_value} - cut value: {proccess_data['val_cup']}')
+            print(f'New emd: {new_emd}')
+            print(f'Base emd: {base_value} - Max emd: {max_value}')
+            print(f'Edges: {new_graph.edges(data=True)}')
+            print(f'EdgesRemoved: {new_graph.removed_edges}')
+            print(f'Is connected: {nx.is_connected(new_graph)}\n')
 
             new_graph.loss_value = new_emd
             modify_tables = {key.replace(
@@ -80,14 +91,42 @@ def create_graphs_delete_edge(father_network: Graph, best_solutions: list, edges
                 best_solutions.append(new_graph)
 
             else:
-                if new_emd <= val_cup:
+                if new_emd <= proccess_data['val_cup']:
                     new_graphs.append(new_graph)
 
     return new_graphs
 
 
+def calcule_posible_emd(removed_edges, new_edge, emd_graph):
+    group_nodes = {}
+    no_zero_edges = [edge for edge in removed_edges if edge[2] != 0.0]
+    no_zero_edges.append(new_edge)
+
+    if len(no_zero_edges) == 0:
+        return emd_graph + new_edge[2]['weight']
+
+    for edge in no_zero_edges:
+        node1, node2, details = edge
+        destino, origen = utils.get_type_nodes(node1, node2)
+        
+        if destino not in group_nodes:
+            group_nodes[destino] = {}
+            
+        group_nodes[destino]["base"] = details['weight'] if details['weight'] > group_nodes[destino].get(
+            "base", 0) else group_nodes[destino].get("base", 0)
+        group_nodes[destino]["sum"] = group_nodes[destino].get(
+            "sum", 0) + details['weight']
+        
+    
+    base_values = round(sum(value['base'] for value in group_nodes.values()), 2) 
+    sum_values = sum(value['sum'] for value in group_nodes.values())
+
+    return base_values, sum_values
+
+
+
 # Cota inicial de corte
-def calcule_cut_value(network: Graph):
+def calcule_cut_value(network: Graph, num_channels_current):
     sum_val_emd = 0
 
     for edge in network.edges(data=True):
@@ -96,4 +135,6 @@ def calcule_cut_value(network: Graph):
 
         sum_val_emd += weight
 
-    return sum_val_emd / 2
+    value_cup = (sum_val_emd / len(network.edges())) * num_channels_current
+
+    return round(value_cup, 3)
