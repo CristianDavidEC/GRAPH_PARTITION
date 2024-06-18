@@ -5,7 +5,6 @@ import networkx as nx
 import probability.utils as utils
 import partition.partition as partition
 from graph.graph import Graph
-from graph.remove_edges import remove_edges
 import time as t
 
 
