@@ -15,21 +15,21 @@ def main_delete_edge(process_data):
         
     init = t.time()
     probability_distributions = utils.create_probability_distributions(process_data['file'])
-    neteork_found = remove_edges(network_graph, probability_distributions, process_data)
+    netework_found = remove_edges(network_graph, probability_distributions, process_data)
 
     finish = t.time()
-    
+
     print('--------- Results ---------')
-    print(f'Loss value: {neteork_found.loss_value}')
-    print(f'Removed edges: {neteork_found.removed_edges}')
-    print(f'Edges Result: {neteork_found.edges(data=True)}')
-    print(f'Components: {list(nx.connected_components(neteork_found))}')
-    print(f'Probability distributions: \n {neteork_found.table_probability}')
+    print(f'Loss value: {netework_found.loss_value}')
+    print(f'Removed edges: {netework_found.removed_edges}')
+    print(f'Edges Result: {netework_found.edges(data=True)}')
+    print(f'Components: {list(nx.connected_components(netework_found))}')
+    print(f'Probability distributions: \n {netework_found.table_probability}')
     print(f'Time: {finish - init} \n\n')
 
     
 
-    utils.graph_result(original_graph, neteork_found)
+    utils.graph_result(original_graph, netework_found)
 
 
 

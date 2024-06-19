@@ -20,19 +20,19 @@ def find_best_partition(network: Graph, proccess_data, original_prob):
     best_solutions = []
     graphs_evaluated = [network]
     graph_solition = None
+    best_value = float('inf')
 
-    # is_solution = False
     while len(graphs_evaluated) > 0:
         graphs_evaluated = [
             obj for obj in graphs_evaluated if not obj.evaluated]
 
+        # Ordena los grafos de menor a mayor perdida y con mayor numero de aristas eliminadas 
         graphs_sort = sorted(graphs_evaluated, key=lambda graph: (
             graph.loss_value, len(graph.removed_edges)))
 
         for graph in graphs_sort:
             edges_graph = graph.edges(data=True)
             sort_edges = sorted(edges_graph, key=lambda x: x[2]['weight'])
-
             new_graphs_deletes_edge = create_graphs_delete_edge(
                 graph, best_solutions, sort_edges, proccess_data, original_prob)
             graph.evaluated = True
@@ -40,7 +40,6 @@ def find_best_partition(network: Graph, proccess_data, original_prob):
             graphs_evaluated.extend(new_graphs_deletes_edge)
 
         if len(best_solutions) > 0:
-            best_value = float('inf')
             for graph in best_solutions:
                 emd_value = graph.loss_value
                 if emd_value < best_value:
@@ -63,31 +62,34 @@ def create_graphs_delete_edge(father_network: Graph, best_solutions: list, edges
         edge_evaluated = (edge[0], edge[1], edge[2]['weight'])
         posible_emd, _ = calcule_posible_emd(
             father_network.removed_edges, edge_evaluated, emd_graph)
-
-        if posible_emd < proccess_data['val_cup']:
+        if posible_emd <= proccess_data['val_cup']:
             new_graph = remove_edges.create_new_graph(father_network, edge)
             new_graph.removed_edges.extend(father_network.removed_edges)
 
             new_tables_prob = remove_edges.calcule_table_probabilities(
                 father_network, proccess_data, edge)
-            new_emd = emd.calcule_emd(
+            found_emd = emd.calcule_emd(
                 new_tables_prob, proccess_data['state'], original_prob)
-            new_graph.loss_value = new_emd
+            new_graph.loss_value = found_emd
             new_graph.table_probability = new_tables_prob
-            print(f'Edge: {edge_evaluated} - Value: {posible_emd}')
-            print(f'Base emd: {posible_emd} - cut value: {proccess_data['val_cup']}')
-            print(f'New emd: {new_emd}')
-            print(f'Edges: {new_graph.edges(data=True)}')
-            print(f'EdgesRemoved: {new_graph.removed_edges}')
-            print(f'Is connected: {nx.is_connected(new_graph)}\n')
+            # print(f'Edge: {edge_evaluated} - Value: {posible_emd}')
+            # print(f'Evalate Node: {posible_emd} <= cut value: {proccess_data['val_cup']}')
+            # print(f'found EMD: {found_emd}')
+            # print(f'Edges: {new_graph.edges(data=True)}')
+            # print(f'EdgesRemoved: {new_graph.removed_edges}')
+            # print(f'Is connected: {nx.is_connected(new_graph)}')
 
             if not nx.is_connected(new_graph):
-                proccess_data['val_cup'] = new_emd
-                best_solutions.append(new_graph)
-
+                if found_emd < proccess_data['val_cup']:
+                    best_solutions.append(new_graph)
+                    proccess_data['val_cup'] = found_emd
+                    #print(f'\n New best value: {found_emd}\n')
             else:
-                if new_emd <= proccess_data['val_cup']:
+                #print(f'Condicional New graph:{found_emd} < {proccess_data['val_cup']}\n')
+                if found_emd < proccess_data['val_cup']:
                     new_graphs.append(new_graph)
+            
+            #print('------------------------\n')
 
     return new_graphs
 
@@ -113,13 +115,16 @@ def calcule_posible_emd(removed_edges, new_edge, emd_graph):
             "sum", 0) + weight
 
     base_values = round(sum(value['base']
-                        for value in group_nodes.values()), 2)
+                        for value in group_nodes.values()), 3)
     sum_values = sum(value['sum'] for value in group_nodes.values())
 
     return base_values, sum_values
 
 
-# Cota inicial de corte
+# La cota inicial se calcula con el valor de perdida promedio de todas las aristas
+# por la maxima cantidad de aristas que puede cortar antes de encontrar una particion,
+# este valor equivale al numero de canales actuales. Todas las ariasta encima de este valor
+# no se expanderan para encontrar una particion.
 def calcule_cut_value(network: Graph, num_channels_current):
     sum_val_emd = 0
 

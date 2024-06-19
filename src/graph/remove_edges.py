@@ -31,7 +31,6 @@ def remove_edges(network: Graph, probabilities, proccess_data):
         network[removed_edge[0]][removed_edge[1]]['weight'] = emd_value
 
         if network.loss_value == 0:
-            network.table_probability = new_tables_prob
             proccess_data['channels'] = proccess_data['current']
             network.remove_edge(*removed_edge)
             info_edge_removed = (removed_edge[0], removed_edge[1], emd_value)
@@ -39,12 +38,8 @@ def remove_edges(network: Graph, probabilities, proccess_data):
             network.table_probability = new_tables_prob
 
         if not nx.is_connected(network):
-            network.loss_value = emd_value
-
             return network
         
-    utils.grapho(network)
-    
     graph_found = partition.find_best_partition(network, proccess_data, original_prob)
 
     return graph_found
