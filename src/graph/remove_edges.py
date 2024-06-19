@@ -34,7 +34,8 @@ def remove_edges(network: Graph, probabilities, proccess_data):
             network.table_probability = new_tables_prob
             proccess_data['channels'] = proccess_data['current']
             network.remove_edge(*removed_edge)
-            network.removed_edges.append(removed_edge)
+            info_edge_removed = (removed_edge[0], removed_edge[1], emd_value)
+            network.removed_edges.append(info_edge_removed)
             network.table_probability = new_tables_prob
 
         if not nx.is_connected(network):
@@ -42,92 +43,23 @@ def remove_edges(network: Graph, probabilities, proccess_data):
 
             return network
         
-    print(original_graph.edges(data=True))
-    return network
-    # delete_zeros_graph(original_graph, probabilities, proccess_data)
-    # graph_found = partition.find_best_partition(original_graph, proccess_data, original_prob)
+    utils.grapho(network)
+    
+    graph_found = partition.find_best_partition(network, proccess_data, original_prob)
 
-    # return graph_found
-
-
-# def delete_zeros_graph(network: Graph, probabilities, proccess_data):
-#     original_prob = prob.get_original_probability(
-#         probabilities, proccess_data['current'], proccess_data['future'], proccess_data['channels'])
-
-#     network.table_probability = probabilities
-#     graph_processor = network.copy()
-
-#     for node1, node2, details_edge in graph_processor.edges(data=True):
-#         if details_edge['weight'] == 0:
-#             network.remove_edge(node1, node2)
-#             network.removed_edges.append((node1, node2))
-#             calcule_probability_dist(
-#                 network, probabilities, proccess_data)
-
-#     modify_tables = {key.replace(
-#         "'", ""): value for key, value in network.table_probability.items()}
-#     network.table_probability = modify_tables
-
-#     print(network.table_probability)
-# # Crea un nuevo grafo con el edge removido
+    return graph_found
 
 
-# def create_new_graph(network: Graph, removed_edge):
-#     original_graph = network.copy()
-#     original_graph.remove_edge(*removed_edge)
+def create_new_graph(network: Graph, removed_edge):
+    original_graph = network.copy()
+    original_graph.remove_edge(removed_edge[0], removed_edge[1])
 
-#     graph_processor = Graph()
-#     graph_processor.add_edges_to_graph(original_graph.edges(data=True))
-#     graph_processor.removed_edges.append(removed_edge)
+    graph_processor = Graph()
+    graph_processor.add_edges_to_graph(original_graph.edges(data=True))
+    info_edge_removed = (removed_edge[0], removed_edge[1], removed_edge[2]['weight'])
+    graph_processor.removed_edges.append(info_edge_removed)
 
-#     return graph_processor
-
-
-# Calcula la nueva tabla de probabilidad del grafo sin el edge
-# @ param probabilities: diccionario con las tablas de probabilidad original
-# @ param graph: grafo con los edges removidos
-# @ param proccess_data: diccionario con los datos del proceso
-# def calcule_probability_dist(graph: Graph, probabilities, proccess_data):
-#     print('Detalles del grafo')
-#     print(f'Removed edges: {graph.removed_edges}')
-
-#     #prob_expression = graph.conver_edges_to_probability_expression()
-#     tablet_marginalize = None
-#     tables_result = {}
-#     size_current = len(proccess_data['current'])
-#     result_empty_future = {}
-
-#     for future, current in prob_expression.items():
-#         future_expression = future.replace("'", "")
-#         tablet_marginalize = get_marginalize_channel(
-#             probabilities[future_expression], current, proccess_data['channels'])
-
-#         tables_result[future] = tablet_marginalize
-
-#     for edge in graph.removed_edges:
-#         node1, node2 = edge
-#         future, current = get_type_nodes(node1, node2)
-#         if future not in tables_result:
-#             table, prob_exp = get_table_future_empty(
-#                 (future, current), probabilities, proccess_data)
-#             result_empty_future[future] = table
-#             complete_table_prob(result_empty_future, edge,
-#                                 prob_exp, size_current)
-#             probabilities[future] = table
-#         else:
-#             complete_table_prob(tables_result, edge,
-#                                 prob_expression, size_current)
-
-#         if size_current == 1:
-#             node1, node2 = edge
-#             future, current = get_type_nodes(node1, node2)
-#             key_future = future.replace("'", "")
-
-#             table_future = probabilities[key_future].mean(axis=0).values
-#             tables_result[future] = table_future
-
-#     merge_results = {**result_empty_future, **tables_result}
-#     graph.table_probability = merge_results
+    return graph_processor
 
 def calcule_table_probabilities(graph: Graph, proccess_data, node_delete):
     current_channels = proccess_data['current']

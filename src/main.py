@@ -2,11 +2,11 @@ from execute import execute
 
 if __name__ == '__main__':
     data_to_process = {
-        'file': 'data/tablex5.json',
+        'file': 'data/tablex3.json',
         'future': 'ABC',
         'current': 'ABC',
-        'state': '100',
-        'channels': 'ABCDE',
+        'state': '111',
+        'channels': 'ABC',
         'method': 'delete_edges' # partition | delete_edges
     }
 
