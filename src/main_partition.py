@@ -22,7 +22,7 @@ def main_partition(process_data):
     print(f'Partition: {partition_found["partition"]}')
     print(f'Tensor Product:\n {partition_found["tensor_product"]}')
     print(vars(graph_found))
-    print(f'Time: {finish - init}')
+    print(f'Time: {round(finish - init, 5)}')
 
     utils.graph_result(original_graph, graph_found)
 
