@@ -9,9 +9,11 @@ import probability.utils as utils
 # la que su valor de perdida sea menor.
 # @ param network: grafo con las aristas 0 eliminadas
 # @ return: grafo con la mejor particion
-# Mientras no hay solucion recore lista de grafos a evaluar
+# Mientras hay grafos para evaluar, el proceso continua
 # Estos se ordenan por perdida y aristas eliminadas
-# Una vez evaluados, revisa su hay solucion y retorna la mejor encontrada
+# Una vez evaluados, revisa su hay solucion y almacena en best_solutions
+# Una vez evaluados todos los grafos
+# @ return: grafo de mejor solucion
 def find_best_partition(network: Graph, proccess_data, original_prob):
     network.loss_value = 0
     val_cup = calcule_cut_value(network, len(proccess_data['current']))
@@ -25,7 +27,6 @@ def find_best_partition(network: Graph, proccess_data, original_prob):
     while len(graphs_evaluated) > 0:
         graphs_evaluated = [
             obj for obj in graphs_evaluated if not obj.evaluated]
-
         # Ordena los grafos de menor a mayor perdida y con mayor numero de aristas eliminadas 
         graphs_sort = sorted(graphs_evaluated, key=lambda graph: (
             graph.loss_value, len(graph.removed_edges)))
@@ -48,12 +49,12 @@ def find_best_partition(network: Graph, proccess_data, original_prob):
 
     return graph_solition
 
+
 # Para cada grafo a evaluar, crea un nuevo grafo con la arista eliminada que este dentro de la cota
 # Calcula su nueva probabilidad y valor de perdida, si el grafo deja de ser conexto
 # es un grafo solucion y lo almacena en best_solutions, ademas cambia la cota de corte
-# de ser conexo agrega el grafo a grafos por evaluar
-
-
+# de ser conexo agrega el grafo a grafos por evaluar si su perdida es menor a la cota actual
+# @return: Lista de grafos por evaluar
 def create_graphs_delete_edge(father_network: Graph, best_solutions: list, edges, proccess_data, original_prob):
     new_graphs = []
     emd_graph = father_network.loss_value
@@ -94,6 +95,9 @@ def create_graphs_delete_edge(father_network: Graph, best_solutions: list, edges
     return new_graphs
 
 
+# Agrupamos los nodos eliminados y agregamos el nuevo nodo a eliminar a un mismo nodo destino, 
+# el mayor peros de estos es el rango de inicio La suma de estos es el rango superior. 
+# Sumamos los grupos de nodos eliminados de esa manera de obtener un posible rango de perdida.
 def calcule_posible_emd(removed_edges, new_edge, emd_graph):
     group_nodes = {}
     no_zero_edges = [edge for edge in removed_edges if edge[2] != 0]

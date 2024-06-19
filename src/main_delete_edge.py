@@ -25,7 +25,7 @@ def main_delete_edge(process_data):
     print(f'Edges Result: {netework_found.edges(data=True)}')
     print(f'Components: {list(nx.connected_components(netework_found))}')
     print(f'Probability distributions: \n {netework_found.table_probability}')
-    print(f'Time: {finish - init} \n\n')
+    print(f'Time: {round(finish - init, 5)} \n\n')
 
     
 
