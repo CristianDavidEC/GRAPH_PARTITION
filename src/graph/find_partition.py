@@ -23,15 +23,18 @@ def find_best_partition(network: Graph, proccess_data, original_prob):
     graphs_evaluated = [network]
     graph_solition = None
     best_value = float('inf')
+    finish = False
+    graph = None
 
-    while len(graphs_evaluated) > 0:
+    while len(graphs_evaluated) > 0 and not finish:
         graphs_evaluated = [
             obj for obj in graphs_evaluated if not obj.evaluated]
         # Ordena los grafos de menor a mayor perdida y con mayor numero de aristas eliminadas 
         graphs_sort = sorted(graphs_evaluated, key=lambda graph: (
             graph.loss_value, len(graph.removed_edges)))
-
-        for graph in graphs_sort:
+        
+        if graphs_sort:
+            graph = graphs_sort[0]
             edges_graph = graph.edges(data=True)
             sort_edges = sorted(edges_graph, key=lambda x: x[2]['weight'])
             new_graphs_deletes_edge = create_graphs_delete_edge(
@@ -40,12 +43,12 @@ def find_best_partition(network: Graph, proccess_data, original_prob):
 
             graphs_evaluated.extend(new_graphs_deletes_edge)
 
-        if len(best_solutions) > 0:
-            for graph in best_solutions:
-                emd_value = graph.loss_value
-                if emd_value < best_value:
-                    best_value = emd_value
-                    graph_solition = graph
+            if len(best_solutions) > 0:
+                for graph in best_solutions:
+                    emd_value = graph.loss_value
+                    if emd_value < best_value:
+                        best_value = emd_value
+                        graph_solition = graph
 
     return graph_solition
 
