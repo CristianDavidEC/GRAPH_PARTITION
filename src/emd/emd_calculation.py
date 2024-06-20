@@ -41,7 +41,7 @@ def get_probability_in_state(probabilities, state):
 ### estados dada.
 def hamming_distance_matrix(states):
     state = list(map(lambda x: list(map(int, x)), states))
-    haming_matrix = cdist(state, state, 'hamming') * len(state[0])
+    haming_matrix = cdist(state, state, 'hamming').astype('float32') * len(state[0])
 
     return haming_matrix
 
@@ -54,6 +54,9 @@ def emd_partition(probability_table, original_probability, state):
 
     list_modofy_prob = order_table['probability'].values
     list_original_prob = original_probability.loc[state].to_numpy()
+
+    list_modofy_prob = np.round(list_modofy_prob, 5)
+    list_original_prob = np.round(list_original_prob, 5)
 
     list_modofy_prob = np.ascontiguousarray(list_modofy_prob, dtype=np.double)
     list_original_prob = np.ascontiguousarray(
